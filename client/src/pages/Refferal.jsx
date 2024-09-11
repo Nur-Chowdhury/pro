@@ -3,10 +3,32 @@ import { useDispatch, useSelector } from 'react-redux';
 import { setItem } from '../redux/slices/commonSlice';
 import Sidebar from '../components/Sidebar';
 import Nav from '../components/Nav';
+import { findUserByIDRoute } from '../utils/ApiRoutes';
+import { toast } from 'react-toastify';
+import axios from 'axios';
+
 
 export default function Refferal() {
 
-    const {userInfo} = useSelector((state) => state.user);
+    const {userID} = useSelector((state) => state.user);
+    const [userInfo, setUserInfo] = useState({});
+    const [loading, setLoading] = useState(false);
+
+    useEffect(() => {
+        const fetchUser = async () => {
+            setLoading(true);
+            try {
+                const response = await axios.get(`${findUserByIDRoute}?id=${userID}`);
+                setUserInfo(response.data);
+                setLoading(false);
+            } catch (error) {
+                console.log(error);
+                toast.error('Failed to load User');
+                setLoading(false);
+            }
+        };
+        fetchUser();
+    }, [userID]);
 
     const dispatch = useDispatch();
 
@@ -65,7 +87,7 @@ export default function Refferal() {
                             </tr>
                             </thead>
                             <tbody>
-                            {userInfo?.refers.length > 0 ? (
+                            {userInfo?.refers?.length > 0 ? (
                                 userInfo.refers.map((refer, index) => (
                                 <tr key={refer.id} className="border-b">
                                     <td className="py-2 px-4">{index + 1}</td>

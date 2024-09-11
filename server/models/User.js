@@ -42,6 +42,10 @@ const userSchema = new mongoose.Schema(
         type: String,
         required: true,
     },
+    verified:{
+      type: Boolean,
+      default: false,
+    },
     income:{
         type: Number,
         default: 0.0,

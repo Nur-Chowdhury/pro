@@ -1,13 +1,35 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { useSelector } from 'react-redux';
 import Pre from '../components/Pre';
 import Post from '../components/Post';
 import Nav from '../components/Nav';
 import Sidebar from '../components/Sidebar';
+import { findUserByIDRoute } from '../utils/ApiRoutes';
+import { toast } from 'react-toastify';
+import axios from 'axios';
+
 
 export default function Survey() {
 
-    const { userInfo } = useSelector((state) => state.user);
+    const {userID} = useSelector((state) => state.user);
+    const [userInfo, setUserInfo] = useState({});
+    const [loading, setLoading] = useState(false);
+
+    useEffect(() => {
+        const fetchUser = async () => {
+            setLoading(true);
+            try {
+                const response = await axios.get(`${findUserByIDRoute}?id=${userID}`);
+                setUserInfo(response.data);
+                setLoading(false);
+            } catch (error) {
+                console.log(error);
+                toast.error('Failed to load User');
+                setLoading(false);
+            }
+        };
+        fetchUser();
+    }, [userID]);
 
   return (
     <div>

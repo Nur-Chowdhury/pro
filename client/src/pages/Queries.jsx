@@ -1,16 +1,35 @@
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { addReplyRoute, getAllQueriesRoute } from '../utils/ApiRoutes';
+import { addReplyRoute, findUserByIDRoute, getAllQueriesRoute } from '../utils/ApiRoutes';
 import { toast } from 'react-toastify';
 
 export default function Queries() {
   const [queries, setQueries] = useState([]);
   const [reply, setReply] = useState(-1);
   const [description, setDescription] = useState('');
-  const { userInfo } = useSelector((state) => state.user);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+
+  const {userID} = useSelector((state) => state.user);
+  const [userInfo, setUserInfo] = useState({});
+  const [loading, setLoading] = useState(false);
+
+    useEffect(() => {
+        const fetchUser = async () => {
+            setLoading(true);
+            try {
+                const response = await axios.get(`${findUserByIDRoute}?id=${userID}`);
+                setUserInfo(response.data);
+                setLoading(false);
+            } catch (error) {
+                console.log(error);
+                toast.error('Failed to load User');
+                setLoading(false);
+            }
+        };
+        fetchUser();
+    }, [userID]);
 
   useEffect(() => {
     const fetchQueries = async () => {

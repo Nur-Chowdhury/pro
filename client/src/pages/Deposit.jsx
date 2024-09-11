@@ -4,6 +4,7 @@ import Nav from '../components/Nav'
 import { useDispatch, useSelector } from 'react-redux'
 import { setAmount } from '../redux/slices/commonSlice';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 
 export default function Deposit() {
 
@@ -13,10 +14,10 @@ export default function Deposit() {
 
     const handleClick = () => {
         if(amount >49){
-            navigate('/deposit/bkash');
+            navigate('/deposit/bkash'); 
         }
         else{
-            toast.error("Amount Must be Greater Than 50!");
+            toast.error("Amount Must be Greater or Equal to 50!");
         }
     }
 

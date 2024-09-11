@@ -1,17 +1,39 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 import Nav from '../components/Nav';
 import { setAmountw } from '../redux/slices/commonSlice';
 import { toast } from 'react-toastify';
+import { findUserByIDRoute } from '../utils/ApiRoutes';
+import axios from 'axios';
+
 
 export default function Withdraw() {
 
     const {amountw} = useSelector((state) => state.common);
-    const {userInfo} = useSelector((state) => state.user);
     const dispatch = useDispatch();
     const navigate = useNavigate();
+
+    const {userID} = useSelector((state) => state.user);
+    const [userInfo, setUserInfo] = useState({});
+    const [loading, setLoading] = useState(false);
+
+    useEffect(() => {
+        const fetchUser = async () => {
+            setLoading(true);
+            try {
+                const response = await axios.get(`${findUserByIDRoute}?id=${userID}`);
+                setUserInfo(response.data);
+                setLoading(false);
+            } catch (error) {
+                console.log(error);
+                toast.error('Failed to load User');
+                setLoading(false);
+            }
+        };
+        fetchUser();
+    }, [userID]);
 
     const handleClick = () => {
         if(amountw >= 1 && amountw <= 1201){

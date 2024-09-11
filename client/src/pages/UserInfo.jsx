@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
 import Sidebar from '../components/Sidebar';
 import Nav from '../components/Nav';
@@ -8,16 +8,39 @@ import { SiTicktick } from "react-icons/si";
 import { GiCancel } from "react-icons/gi";
 import { FaUsers } from "react-icons/fa";
 import { setItem } from '../redux/slices/commonSlice';
+import axios from 'axios';
+import { toast } from 'react-toastify';
+import { findUserByIDRoute } from '../utils/ApiRoutes';
 
 export default function UserInfo() {
 
-    const {userInfo} = useSelector((state) => state.user);
+    const [loading, setLoading] = useState(false);
 
     const dispatch = useDispatch();
 
     useEffect(() => {
         dispatch(setItem(1));
     },[])
+
+    const {userID} = useSelector((state) => state.user);
+    const [userInfo, setUserInfo] = useState({});
+
+    useEffect(() => {
+        const fetchUser = async () => {
+            setLoading(true);
+            try {
+                const response = await axios.get(`${findUserByIDRoute}?id=${userID}`);
+                setUserInfo(response.data);
+                console.log(response);
+                setLoading(false);
+            } catch (error) {
+                console.log(error);
+                toast.error('Failed to load User');
+                setLoading(false);
+            }
+        };
+        fetchUser();
+    }, [userID]);
 
   return (
     <div>

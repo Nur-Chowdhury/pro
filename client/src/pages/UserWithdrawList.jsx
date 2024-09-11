@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import Nav from '../components/Nav'
 import Sidebar from '../components/Sidebar'
 import { useSelector } from 'react-redux';
-import { getUserWithdrawsRoute } from '../utils/ApiRoutes';
+import { findUserByIDRoute, getUserWithdrawsRoute } from '../utils/ApiRoutes';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 
@@ -11,15 +11,21 @@ export default function UserWithdrawList() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [withdraws, setWithdraws] = useState([]);
-  const {userInfo} = useSelector((state) => state.user);
+  
+  const {userID} = useSelector((state) => state.user);
+  const [loading, setLoading] = useState(false);
+
 
   useEffect(() => {
     const fetchWithdraws = async () => {
+        setLoading(true);
         try {
-            const response = await axios.get(`${getUserWithdrawsRoute}?page=${currentPage}&id=${userInfo._id}`);
+            const response = await axios.get(`${getUserWithdrawsRoute}?page=${currentPage}&id=${userID}`);
             setWithdraws(response.data.data);
             setTotalPages(response.data.totalPages || 1);
+            setLoading(false);
         } catch (error) {
+            setLoading(false);
             toast.error('Failed to load users');
         }
     };

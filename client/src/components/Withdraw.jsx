@@ -1,3 +1,5 @@
+//depricated
+
 import React from 'react'
 import bkash from '../assets/bkash.png';
 import binance from '../assets/binance.png'

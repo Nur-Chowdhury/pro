@@ -1,17 +1,38 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import Sidebar from '../components/Sidebar'
 import Nav from '../components/Nav'
 import { useDispatch, useSelector } from 'react-redux';
 import { addQuery } from '../redux/actions/queryActions';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import { findUserByIDRoute } from '../utils/ApiRoutes';
+import axios from 'axios';
+
 
 export default function NewQuery() {
     const [description, setDescription] = useState('');
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
-    const {userInfo} = useSelector((state) => state.user);
+    const {userID} = useSelector((state) => state.user);
+    const [userInfo, setUserInfo] = useState({});
+    const [loading, setLoading] = useState(false);
+
+    useEffect(() => {
+        const fetchUser = async () => {
+            setLoading(true);
+            try {
+                const response = await axios.get(`${findUserByIDRoute}?id=${userID}`);
+                setUserInfo(response.data);
+                setLoading(false);
+            } catch (error) {
+                console.log(error);
+                toast.error('Failed to load User');
+                setLoading(false);
+            }
+        };
+        fetchUser();
+    }, [userID]);
 
     const handleSubmit = (e) => {
         e.preventDefault();

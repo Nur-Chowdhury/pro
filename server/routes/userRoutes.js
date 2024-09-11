@@ -4,6 +4,9 @@ import Task from '../models/Task.js';
 import Query from '../models/Query.js'
 import asyncHandler from 'express-async-handler';
 import jwt from 'jsonwebtoken';
+import Token from '../models/Token.js';
+import sendMail from '../utils/sendMail.js';
+import crypto from "crypto";
 // import { protectRoute, admin } from '../middleware/authMiddleware.js';
 
 const userRoutes = express.Router();
@@ -58,24 +61,16 @@ const registerUser = asyncHandler(async (req, res) => {
       }
     
       if (user) {
+        const token = await new Token({
+          userID: user._id,
+          token: crypto.randomBytes(16).toString("hex"),
+        }).save();
 
-        const validUser = await User.findOne({email});
+        const url = `${process.env.BASE_URL}/users/verifyUser/${user._id}/${token.token}`;
 
-        const completedWithdrawals = validUser.withdrawalList.filter(withdrawal => withdrawal.status === 'complete');
-        const pendingWithdrawals = validUser.withdrawalList.filter(withdrawal => withdrawal.status === 'pending');
-        const rejectedWithdrawals = validUser.withdrawalList.filter(withdrawal => withdrawal.status === 'rejected');
+        await sendMail(user.email, "Verify Email", url);
 
-        const {password: pass, ...rest} = validUser._doc;
-
-        rest.complete = completedWithdrawals;
-        rest.pending = pendingWithdrawals;
-        rest.reject = rejectedWithdrawals;
-
-        const queries = await Query.find({ userID:user._id }).sort({ createdAt: -1 });
-
-        rest.queries = queries;
-
-        res.status(201).json(rest);
+        res.status(201).json("An Email sent to your account. Please verify!");
 
       } else {
         res.status(400).send('We could not register you.');
@@ -87,6 +82,29 @@ const registerUser = asyncHandler(async (req, res) => {
     
 });
 
+const verifyUser = asyncHandler (async (req, res) => {
+  
+  try {
+		const user = await User.findById(req.params.id);
+    
+		if (!user) return res.status(400).send({ message: "Invalid link" });
+
+		const token = await Token.findOne({
+			userID: user._id,
+			token: req.params.token,
+		});
+    
+		if (!token) return res.status(400).send({ message: "Invalid link" });
+
+		await User.updateOne({ _id: user._id }, { $set: { verified: true } });
+		await token.deleteOne();
+
+		res.status(200).send({ message: "Email verified successfully" });
+	} catch (error) {
+		res.status(500).send({ message: "Internal Server Error" });
+	}
+})
+
 const loginUser = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
   const user = await User.findOne({ email });
@@ -96,11 +114,22 @@ const loginUser = asyncHandler(async (req, res) => {
   }
 
   if (user && (await user.matchPasswords(password))) {
+    if (!user.verified) {
+			let token = await Token.findOne({ userId: user._id });
+			if (!token) {
+				token = await new Token({
+					userId: user._id,
+					token: crypto.randomBytes(32).toString("hex"),
+				}).save();
+				const url = `${process.env.BASE_URL}/users/verifyUser/${user._id}/${token.token}`;
+				await sendMail(user.email, "Verify Email", url);
+			}
 
-    const completedWithdrawals = user.withdrawalList.filter(withdrawal => withdrawal.status === 'complete');
-    const pendingWithdrawals = user.withdrawalList.filter(withdrawal => withdrawal.status === 'pending');
-    const rejectedWithdrawals = user.withdrawalList.filter(withdrawal => withdrawal.status === 'rejected');
-
+			return res
+				.status(400)
+				.send({ message: "An Email sent to your account please verify" });
+		}
+    
     const {password: pass, ...rest} = user._doc;
 
     const now = new Date();
@@ -111,15 +140,9 @@ const loginUser = asyncHandler(async (req, res) => {
       user.lastLogin = now;
     }
     await user.save();
+    console.log(rest);
 
-    rest.complete = completedWithdrawals;
-    rest.pending = pendingWithdrawals;
-    rest.reject = rejectedWithdrawals;
-
-    const queries = await Query.find({ userID:user._id }).sort({ createdAt: -1 });
-    rest.queries = queries;
-
-    res.status(201).json(rest);
+    res.status(201).json(rest._id);
   } else {
     res.status(401).send('Invalid Email or Password');
     throw new Error('User not found.');
@@ -149,19 +172,7 @@ export const subscribe = async (req, res, next) => {
     const updatedUser = await user.save();
     const { password, ...rest } = updatedUser._doc;
 
-    const completedWithdrawals = updatedUser.withdrawalList.filter(withdrawal => withdrawal.status === 'complete');
-    const pendingWithdrawals = updatedUser.withdrawalList.filter(withdrawal => withdrawal.status === 'pending');
-    const rejectedWithdrawals = updatedUser.withdrawalList.filter(withdrawal => withdrawal.status === 'rejected');
-
-    rest.complete = completedWithdrawals;
-    rest.pending = pendingWithdrawals;
-    rest.reject = rejectedWithdrawals;
-
-    const queries = await Query.find({ userID:updatedUser._id }).sort({ createdAt: -1 });
-
-    rest.queries = queries;
-
-    res.status(200).json(rest);
+    res.status(200).json(rest._id);
   } catch (error) {
       next(error);
   } 
@@ -182,22 +193,21 @@ export const fetchTask = asyncHandler(async (req, res) => {
     const updatedUser = await user.save();
     const { password, ...rest } = updatedUser._doc;
 
-    const completedWithdrawals = updatedUser.withdrawalList.filter(withdrawal => withdrawal.status === 'complete');
-    const pendingWithdrawals = updatedUser.withdrawalList.filter(withdrawal => withdrawal.status === 'pending');
-    const rejectedWithdrawals = updatedUser.withdrawalList.filter(withdrawal => withdrawal.status === 'rejected');
+    // const completedWithdrawals = updatedUser.withdrawalList.filter(withdrawal => withdrawal.status === 'complete');
+    // const pendingWithdrawals = updatedUser.withdrawalList.filter(withdrawal => withdrawal.status === 'pending');
+    // const rejectedWithdrawals = updatedUser.withdrawalList.filter(withdrawal => withdrawal.status === 'rejected');
 
-    rest.complete = completedWithdrawals;
-    rest.pending = pendingWithdrawals;
-    rest.reject = rejectedWithdrawals;
+    // rest.complete = completedWithdrawals;
+    // rest.pending = pendingWithdrawals;
+    // rest.reject = rejectedWithdrawals;
 
-    const queries = await Query.find({ userID:updatedUser._id }).sort({ createdAt: -1 });
+    // const queries = await Query.find({ userID:updatedUser._id }).sort({ createdAt: -1 });
 
-    rest.queries = queries;
+    // rest.queries = queries;
 
     res.status(200).json(rest);
   } else {
-    res.status(404);
-    throw new Error('Task not found');
+    res.status(404).json('Task not Found!');
   }
 });
 
@@ -223,19 +233,7 @@ export const nextIndex = asyncHandler(async (req, res) => {
     const updatedUser = await user.save();
     const { password, ...rest } = updatedUser._doc;
 
-    const completedWithdrawals = updatedUser.withdrawalList.filter(withdrawal => withdrawal.status === 'complete');
-    const pendingWithdrawals = updatedUser.withdrawalList.filter(withdrawal => withdrawal.status === 'pending');
-    const rejectedWithdrawals = updatedUser.withdrawalList.filter(withdrawal => withdrawal.status === 'rejected');
-
-    rest.complete = completedWithdrawals;
-    rest.pending = pendingWithdrawals;
-    rest.reject = rejectedWithdrawals;
-
-    const queries = await Query.find({ userID:updatedUser._id }).sort({ createdAt: -1 });
-
-    rest.queries = queries;
-
-    res.status(200).json(rest);
+    res.status(200).json(rest._id);
 
   } catch (error) {
     res.status(404).json(error.message);
@@ -267,7 +265,7 @@ export const surveyDone = asyncHandler(async (req, res) => {
 
     const updatedUser = await user.save();
     const { password, ...rest } = updatedUser._doc;
-    res.status(200).json(rest);
+    res.status(200).json(rest._id);
 
   } catch (error) {
     res.status(404).json(error.message);
@@ -301,11 +299,42 @@ export const transferBalance = async (req, res) => {
       await receiver.save();
       const updatedUser = await sender.save();
       const { password, ...rest } = updatedUser._doc;
-      res.status(200).json(rest);
+      res.status(200).json(rest._id);
   } catch (error) {
       res.status(500).json({ message: 'Server error' });
   }
 };
+
+
+const findUserByID = async (req, res) => {
+    try {
+        const id = req.query.id;
+        const user = await User.findById(id);
+
+        if(!user){
+          res.status(404).json({ message: 'User Not Found!' });
+        }
+
+        const { password, ...rest } = user._doc;
+        const completedWithdrawals = user.withdrawalList.filter(withdrawal => withdrawal.status === 'complete');
+        const pendingWithdrawals = user.withdrawalList.filter(withdrawal => withdrawal.status === 'pending');
+        const rejectedWithdrawals = user.withdrawalList.filter(withdrawal => withdrawal.status === 'rejected');
+
+        rest.complete = completedWithdrawals;
+        rest.pending = pendingWithdrawals;
+        rest.reject = rejectedWithdrawals;
+
+        const queries = await Query.find({ userID:user._id }).sort({ createdAt: -1 });
+
+        rest.queries = queries;
+
+        res.status(200).json(rest);
+
+
+    } catch (error) {
+      res.status(500).json({ message: 'Server error' });
+    }
+}
 
 
 
@@ -318,5 +347,8 @@ userRoutes.route('/getTaskById').post(getTaskById);
 userRoutes.route('/nextIndex').post(nextIndex);
 userRoutes.route('/surveyDone').post(surveyDone);
 userRoutes.route('/transferBalance').post(transferBalance);
+userRoutes.route('/findUserByID').get(findUserByID);
+userRoutes.route('/verifyUser/:id/:token').get(verifyUser);
+
 
 export default userRoutes;

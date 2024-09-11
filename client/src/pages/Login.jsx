@@ -13,19 +13,16 @@ export default function Login() {
     const dispatch = useDispatch();
     const [bd, setBd] = useState(false); // Correctly initializing state
     const [showPassword, setShowPassword] = useState(false);
-    const redirect = '/dashboard';
     const user = useSelector((state) => state.user);
-    const { loading, error, userInfo } = user;
-
-    console.log(loading);
+    const { loading, error, userID } = user;
     
 
     useEffect(() => {
-        if (userInfo) {
-          navigate(redirect);
-        //   toast({ description: 'Account created. Welcome aboard.', status: 'success', isClosable: true });
+        if (userID) {
+          navigate('/dashboard');
+          toast.success("Welcome!");
         }
-    }, [userInfo, redirect, error, navigate]);
+    }, [userID, navigate]);
 
     
 

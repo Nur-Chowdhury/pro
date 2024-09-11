@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import {TextInput} from "flowbite-react"
 import axios from 'axios';
 import { userLogin } from '../redux/slices/user';
-import { transferBalanceRoute } from '../utils/ApiRoutes';
+import { findUserByIDRoute, transferBalanceRoute } from '../utils/ApiRoutes';
 import { toast } from 'react-toastify';
 import { setItem } from '../redux/slices/commonSlice';
 
@@ -15,9 +15,27 @@ export default function BalanceTransfer() {
     const [formData, setFormData] = useState({});
     const [loading, setLoading] = useState(false);
 
-    const {userInfo} = useSelector((state) => state.user);
-
     const dispatch = useDispatch();
+
+    const {userID} = useSelector((state) => state.user);
+    const [userInfo, setUserInfo] = useState({});
+
+    useEffect(() => {
+        const fetchUser = async () => {
+            setLoading(true);
+            try {
+                const response = await axios.get(`${findUserByIDRoute}?id=${userID}`);
+                setUserInfo(response.data);
+                console.log(response);
+                setLoading(false);
+            } catch (error) {
+                console.log(error);
+                toast.error('Failed to load User');
+                setLoading(false);
+            }
+        };
+        fetchUser();
+    }, [userID]);
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.id]: e.target.value });

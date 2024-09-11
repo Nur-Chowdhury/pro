@@ -14,16 +14,8 @@ export default function Register() {
     const [bd, setBd] = useState(false); // Correctly initializing state
     const [showPassword, setShowPassword] = useState(false);
     const [showtPassword, setShowtPassword] = useState(false);
-    const redirect = '/dashboard';
     const user = useSelector((state) => state.user);
-    const { loading, error, userInfo } = user;
-
-    useEffect(() => {
-        if (userInfo) {
-          navigate(redirect);
-        //   toast({ description: 'Account created. Welcome aboard.', status: 'success', isClosable: true });
-        }
-    }, [userInfo, redirect, error, navigate]);
+    const { loading, error } = user;
 
     
 
@@ -54,6 +46,7 @@ export default function Register() {
                         })}
                         onSubmit={(values) => {
                             dispatch(register(values.refID, values.name, values.email, values.password, values.transactionPassword));
+                            navigate("/login");
                         }}
                     >
                         {formik => {

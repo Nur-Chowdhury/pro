@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react'
-import { getUserDepositsRoute } from '../utils/ApiRoutes';
+import { findUserByIDRoute, getUserDepositsRoute } from '../utils/ApiRoutes';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import Sidebar from '../components/Sidebar';
 import Nav from '../components/Nav';
 import { useSelector } from 'react-redux';
+
 
 export default function UserDepositList() {
 
@@ -12,16 +13,20 @@ export default function UserDepositList() {
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
 
-    const {userInfo} = useSelector((state) => state.user);
+    const {userID} = useSelector((state) => state.user);
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         const fetchDeposits = async () => {
+            setLoading(true);
           try {
-            const response = await axios.get(`${getUserDepositsRoute}?page=${currentPage}&id=${userInfo._id}`);
+            const response = await axios.get(`${getUserDepositsRoute}?page=${currentPage}&id=${userID}`);
             setDeposits(response.data.data);
             setTotalPages(response.data.totalPages || 1);
+            setLoading(false);
           } catch (error) {
             toast.error('Failed to Load.');
+            setLoading(false);
           }
         };
         fetchDeposits();

@@ -20,9 +20,8 @@ export const register = (refID, name, email, password, transactionPassword) => a
       };
   
       const { data } = await axios.post(registerRoute, {refID, name, email, password, transactionPassword }, config);
-      dispatch(userLogin(data));
-      localStorage.setItem('userInfo', JSON.stringify(data));
-      toast.success("Registration Successful");
+      console.log(data);
+      toast.success(data);
       dispatch(setLoading(false));
     } catch (error) {
         console.log(error);
@@ -44,11 +43,12 @@ export const login = (email, password) => async (dispatch) => {
       headers: {
         'Content-Type': 'application/json',
       },
-    };
+    }; 
 
     const { data } = await axios.post(loginRoute, { email, password }, config);
+    console.log(data);
     dispatch(userLogin(data));
-    localStorage.setItem('userInfo', JSON.stringify(data));
+    localStorage.setItem('userID', JSON.stringify(data));
     toast.success("Login Success!");
     dispatch(setLoading(false));
   } catch (error) {
@@ -72,8 +72,9 @@ export const subscribe = (value, id, type) => async (dispatch) => {
       },
     };
     const { data } = await axios.post(subscribeRoute, {value, id, type}, config);
+    console.log(data);
     dispatch(userLogin(data));
-    localStorage.setItem('userInfo', JSON.stringify(data));
+    localStorage.setItem('userID', JSON.stringify(data));
     toast.success("Subscription Successful!");
     dispatch(setLoading(false));
   } catch (error) {

@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import Sidebar from '../components/Sidebar'
 import Nav from '../components/Nav'
 import { SiTicktick } from "react-icons/si";
@@ -6,12 +6,33 @@ import { FaQuestionCircle } from "react-icons/fa";
 import { useDispatch, useSelector } from 'react-redux';
 import { subscribe } from '../redux/actions/userActions';
 import { toast } from 'react-toastify';
+import { findUserByIDRoute } from '../utils/ApiRoutes';
+import axios from 'axios';
+
 
 
 export default function Plans() {
-
-    const {userInfo} = useSelector((state) => state.user);
     const dispatch = useDispatch();
+
+    const {userID} = useSelector((state) => state.user);
+    const [userInfo, setUserInfo] = useState({});
+    const [loading, setLoading] = useState(false);
+
+    useEffect(() => {
+        const fetchUser = async () => {
+            setLoading(true);
+            try {
+                const response = await axios.get(`${findUserByIDRoute}?id=${userID}`);
+                setUserInfo(response.data);
+                setLoading(false);
+            } catch (error) {
+                console.log(error);
+                toast.error('Failed to load User');
+                setLoading(false);
+            }
+        };
+        fetchUser();
+    }, [userID]);
 
     const handleClick = (type) => {
         if(type<=userInfo.balance){  

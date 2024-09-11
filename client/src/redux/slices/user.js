@@ -3,7 +3,7 @@ import { createSlice } from '@reduxjs/toolkit';
 export const initialState = {
   loading: false,
   error: null,
-  userInfo: JSON.parse(localStorage.getItem('userInfo')) ?? null,
+  userID: localStorage.getItem('userID')!=="undefined" ? JSON.parse(localStorage.getItem('userID')) : null,
   updateSuccess: false,
   orders: [],
 };
@@ -16,21 +16,21 @@ export const userSlice = createSlice({
       state.loading = payload;
     },
     userLogin: (state, { payload }) => {
-      state.userInfo = payload;
+      state.userID = payload;
       state.error = null;
       state.loading = false;
     },
     userLogout: (state) => {
       state.loading = false;
       state.error = null;
-      state.userInfo = null;
+      state.userID = null;
     },
     setError: (state, { payload }) => {
       state.error = payload;
       state.loading = false;
     },
     updateUserProfile: (state, { payload }) => {
-      state.userInfo = payload;
+      state.userID = payload;
       state.updateSuccess = true;
       state.loading = false;
       state.error = null;
@@ -39,11 +39,11 @@ export const userSlice = createSlice({
       state.updateSuccess = false;
     },
     signoutSuccess: (state) => {
-      state.userInfo = null;
+      state.userID = null;
       state.loading = false;
       state.error = null;
-      localStorage.setItem('userInfo', state.userInfo);
-  },
+      localStorage.setItem('userID', state.userInfo);
+    },
   },
 });
 

@@ -25,6 +25,7 @@ import DepositF from './pages/DepositF';
 import WithdrawF from './pages/WithdrawF';
 import BalanceTransfer from './pages/BalanceTransfer';
 import Support from './pages/Support';
+import EmailVerify from './pages/EmailVerify';
 
 export default function App() {
 
@@ -46,7 +47,7 @@ export default function App() {
             <Route path='/myRefferals' element={<Refferal />} />
             <Route path='/deposit' element={<DepositF />} />
             <Route path='/deposit/amount' element={<Deposit />} />
-            <Route path='/deposit/bkash' element={<Bkash />} />
+            <Route path='/deposit/bkash' element={<Bkash />} /> 
             <Route path='/withdraw' element={<WithdrawF />} />
             <Route path='/withdraw/amount' element={<Withdraw />} />
             <Route path='/withdraw/bkash' element={<WBkash />} />
@@ -62,6 +63,7 @@ export default function App() {
             <Route path='/admin/users' element={<UserList />} />
             <Route path='/admin/deposits' element={<DepositList />} />
             <Route path='/admin/withdraws' element={<WithdrawList />} />
+            <Route path='/users/verifyUser/:id/:token' element= {<EmailVerify />} />
           </Routes>
         </main>
         {/* <Footer /> */}
