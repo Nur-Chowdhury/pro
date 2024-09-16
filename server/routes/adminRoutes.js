@@ -4,6 +4,8 @@ import Task from '../models/Task.js';
 import Query from '../models/Query.js';
 import Deposit from '../models/Deposit.js';
 import Withdraw from '../models/Withdraw.js';
+import {verifyToken} from '../middleware/verifyToken.js';
+import { verifyAdmin } from '../middleware/verifyAdmin.js';
 
 
 const adminRoutes = express.Router();
@@ -11,24 +13,17 @@ const adminRoutes = express.Router();
 
 export const addTask = async (req, res) => {
     try {
-        const { type, name, reward, questions, id } = req.body;
-        const user = await User.findById(id);
-        if(user.admin){
-            const newTask = new Task({
-                type,
-                name,
-                reward,
-                questions,
-            });
-            await newTask.save();
-            res.status(201).json({
-                message: 'Task added successfully',
-            });
-        }else{
-            res.status(401).json({
-                message: 'Unauthorized!',
-            });
-        }
+      const { type, name, reward, questions} = req.body;
+      const newTask = new Task({
+          type,
+          name,
+          reward,
+          questions,
+      });
+      await newTask.save();
+      res.status(201).json({
+          message: 'Task added successfully',
+      });
     } catch (error) {
         res.status(500).json({
             message: 'Error adding task',
@@ -334,17 +329,17 @@ export const banUser = async (req, res) => {
 
 
 
-adminRoutes.route('/addTask').post(addTask);
-adminRoutes.route('/getAllQueries').get(getAllQueries);
-adminRoutes.route('/addReply').post(addReply);
-adminRoutes.route('/getAllUsers').get(getAllUsers);
-adminRoutes.route('/getAllDeposits').get(getAllDeposits);
-adminRoutes.route('/acceptDeposit').post(acceptDeposit);
-adminRoutes.route('/rejectDeposit').post(rejectDeposit);
-adminRoutes.route('/getAllWithdraws').get(getAllWithdraws);
-adminRoutes.route('/acceptWithdraw').post(acceptWithdraw);
-adminRoutes.route('/rejectWithdraw').post(rejectWithdraw);
-adminRoutes.route('/makeAdmin/:id').post(makeAdmin);
-adminRoutes.route('/banUser/:id').post(banUser);
+adminRoutes.route('/addTask').post(verifyToken, verifyAdmin, addTask);
+adminRoutes.route('/getAllQueries').get(verifyToken, verifyAdmin, getAllQueries);
+adminRoutes.route('/addReply').post(verifyToken, verifyAdmin, addReply);
+adminRoutes.route('/getAllUsers').get(verifyToken, verifyAdmin, getAllUsers);
+adminRoutes.route('/getAllDeposits').get(verifyToken, verifyAdmin, getAllDeposits);
+adminRoutes.route('/acceptDeposit').post(verifyToken, verifyAdmin, acceptDeposit);
+adminRoutes.route('/rejectDeposit').post(verifyToken, verifyAdmin, rejectDeposit);
+adminRoutes.route('/getAllWithdraws').get(verifyToken, verifyAdmin, getAllWithdraws);
+adminRoutes.route('/acceptWithdraw').post(verifyToken, verifyAdmin, acceptWithdraw);
+adminRoutes.route('/rejectWithdraw').post(verifyToken, verifyAdmin, rejectWithdraw);
+adminRoutes.route('/makeAdmin/:id').post(verifyToken, verifyAdmin, makeAdmin);
+adminRoutes.route('/banUser/:id').post(verifyToken, verifyAdmin, banUser);
 
 export default adminRoutes;

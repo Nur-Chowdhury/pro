@@ -1,6 +1,7 @@
 import nodemailer from 'nodemailer';
+import { VERIFICATION_EMAIL_TEMPLATE } from './MailTemplates.js';
 
-const sendMail = async (email, subject, text, html) => {
+const sendVerificationMail = async (email, subject, verificationLink) => {
 	try {
 		const transporter = nodemailer.createTransport({
 			host: process.env.HOST,
@@ -13,19 +14,20 @@ const sendMail = async (email, subject, text, html) => {
 			},
 		});
 
+		const htmlContent = VERIFICATION_EMAIL_TEMPLATE.replace("{verificationLink}", verificationLink);
+
 		await transporter.sendMail({
 			from: process.env.USER,
 			to: email,
 			subject: subject,
-			text: text,
-            html: html
+			html: htmlContent,
 		});
-		console.log("email sent successfully");
+		console.log("Email sent successfully");
 	} catch (error) {
-		console.log("email not sent!");
+		console.log("Email not sent!");
 		console.log(error);
 		return error;
 	}
 };
 
-export default sendMail;
+export default sendVerificationMail;

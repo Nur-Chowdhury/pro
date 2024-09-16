@@ -1,5 +1,6 @@
 import Deposit from '../models/Deposit.js';
 import express from 'express'
+import {verifyToken} from '../middleware/verifyToken.js';
 
 const depositRoutes = express.Router();
 
@@ -66,8 +67,8 @@ export const getUserDeposits = async (req, res) => {
   }
 };
 
-depositRoutes.route('/add').post(addDepositRequest);
-depositRoutes.route('/getUserDeposits').get(getUserDeposits);
+depositRoutes.route('/add').post(verifyToken, addDepositRequest);
+depositRoutes.route('/getUserDeposits').get(verifyToken, getUserDeposits);
 
 
 export default depositRoutes;

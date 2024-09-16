@@ -8,6 +8,8 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { findUserByIDRoute } from '../utils/ApiRoutes';
 import axios from 'axios';
+import Loader from '../components/Loader';
+
 
 
 export default function QA() {
@@ -24,19 +26,21 @@ export default function QA() {
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
-        const fetchUser = async () => {
-            setLoading(true);
-            try {
-                const response = await axios.get(`${findUserByIDRoute}?id=${userID}`);
-                setUserInfo(response.data);
-                setLoading(false);
-            } catch (error) {
-                console.log(error);
-                toast.error('Failed to load User');
-                setLoading(false);
-            }
-        };
-        fetchUser();
+        if(userID){
+            const fetchUser = async () => {
+                setLoading(true);
+                try {
+                    const response = await axios.get(`${findUserByIDRoute}?id=${userID}`);
+                    setUserInfo(response.data.user);
+                    setLoading(false);
+                } catch (error) {
+                    console.log(error);
+                    toast.error('Failed to load User');
+                    setLoading(false);
+                }
+            };
+            fetchUser();
+        }
     }, [userID]);
 
   const handleDone = (e) => {
@@ -97,7 +101,13 @@ export default function QA() {
         </div>
         <div className=' w-full md:w-[82%] bg-slate-200 overflow-auto '>
           <Nav />
-          <div className='w-full px-12 py-8 flex flex-col justify-center items-center'>
+          {loading ? (
+            <div className=' mt-12 flex justify-center'>
+                <Loader />
+            </div>
+          )
+          :
+          (<div className='w-full px-12 py-8 flex flex-col justify-center items-center'>
             <div className=' w-full text-4xl font-bold flex justify-center items-center text-gray-700'>
                 Survey Questions of Day {userInfo?.surveyCount+1} 
             </div>
@@ -155,7 +165,7 @@ export default function QA() {
                     }
                 </div>
             </div>
-          </div>
+          </div>)}
         </div>
     
       </div>

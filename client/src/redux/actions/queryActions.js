@@ -1,6 +1,8 @@
 import axios from "axios";
 import { addQueryRoute } from "../../utils/ApiRoutes";
 
+axios.defaults.withCredentials = true;
+
 
 export const addQuery = (description, id) => async (dispatch) => {
     try {

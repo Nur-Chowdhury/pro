@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { acceptDepositRoute, getAllDepositsRoute, rejectDepositRoute } from '../utils/ApiRoutes';
 import axios from 'axios';
 import { toast } from 'react-toastify';
+import Loader from '../components/Loader';
 
 
 export default function DepositList() {
@@ -10,15 +11,19 @@ export default function DepositList() {
     const [dep, setDep] = useState({});
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         const fetchDeposits = async () => {
+          setLoading(true);
           try {
             const response = await axios.get(`${getAllDepositsRoute}?page=${currentPage}`);
             setDeposits(response.data.data);
             setTotalPages(response.data.totalPages || 1);
+            setLoading(false);
           } catch (error) {
             toast.error('Failed to Load.');
+            setLoading(false);
           }
         };
         fetchDeposits();
@@ -47,6 +52,14 @@ export default function DepositList() {
     const handlePageChange = (newPage) => {
         setCurrentPage(newPage);
     };
+
+  if(loading){
+    return(
+      <div className=' mt-12 flex justify-center'>
+        <Loader />
+      </div>
+    )
+  }
 
   return (
     <div>

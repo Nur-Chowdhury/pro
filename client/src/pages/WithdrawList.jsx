@@ -2,6 +2,9 @@ import React, { useEffect, useState } from 'react'
 import { acceptWithdrawRoute, getAllWithdrawsRoute, rejectWithdrawRoute } from '../utils/ApiRoutes';
 import axios from 'axios';
 import { toast } from 'react-toastify';
+import Loader from '../components/Loader';
+
+
 
 export default function WithdrawList() {
 
@@ -9,14 +12,18 @@ export default function WithdrawList() {
     const [totalPages, setTotalPages] = useState(1);
     const [withdraws, setWithdraws] = useState([]);
     const [wit, setWit] = useState({});
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         const fetchWithdraws = async () => {
+          setLoading(true);
             try {
                 const response = await axios.get(`${getAllWithdrawsRoute}?page=${currentPage}`);
                 setWithdraws(response.data.data);
                 setTotalPages(response.data.totalPages || 1);
+                setLoading(false);
             } catch (error) {
+                setLoading(false);
                 toast.error('Failed to load users');
             }
         };
@@ -47,6 +54,14 @@ export default function WithdrawList() {
     const handlePageChange = (newPage) => {
       setCurrentPage(newPage);
     };
+
+    if(loading){
+      return(
+        <div className=' mt-12 flex justify-center'>
+          <Loader />
+        </div>
+      )
+    }
 
   return (
     <div>

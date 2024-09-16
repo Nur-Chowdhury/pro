@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react'
 import { banUserRoute, getAllUsersRoute, makeAdminRoute } from '../utils/ApiRoutes';
 import axios from 'axios';
 import {toast} from 'react-toastify' 
+import Loader from '../components/Loader';
+
 
 export default function UserList() {
 
@@ -9,19 +11,25 @@ export default function UserList() {
   const [error, setError] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        const response = await axios.get(`${getAllUsersRoute}?page=${currentPage}`);
-        setUsers(response.data.data);
-        setTotalPages(response.data.totalPages || 1);
-      } catch (error) {
-        toast.error('Failed to load users');
-      }
-    };
-    fetchUsers();
-  }, [currentPage]);
+    useEffect(() => {
+        if(userID){
+            const fetchUser = async () => {
+                setLoading(true);
+                try {
+                    const response = await axios.get(`${findUserByIDRoute}?id=${userID}`);
+                    setUserInfo(response.data.user);
+                    setLoading(false);
+                } catch (error) {
+                    console.log(error);
+                    toast.error('Failed to load User');
+                    setLoading(false);
+                }
+            };
+            fetchUser();
+        }
+    }, [userID, currentPage]);
 
   const handlePageChange = (newPage) => {
     setCurrentPage(newPage);
@@ -48,6 +56,14 @@ export default function UserList() {
       toast.error('Failed to Ban User!');
     }
   };
+
+  if(loading){
+    return(
+      <div className=' mt-12 flex justify-center'>
+        <Loader />
+      </div>
+    )
+  }
 
   return (
     <div>

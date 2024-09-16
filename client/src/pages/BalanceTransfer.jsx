@@ -8,6 +8,8 @@ import { userLogin } from '../redux/slices/user';
 import { findUserByIDRoute, transferBalanceRoute } from '../utils/ApiRoutes';
 import { toast } from 'react-toastify';
 import { setItem } from '../redux/slices/commonSlice';
+import Loader from '../components/Loader';
+
 
 
 export default function BalanceTransfer() {
@@ -21,20 +23,21 @@ export default function BalanceTransfer() {
     const [userInfo, setUserInfo] = useState({});
 
     useEffect(() => {
-        const fetchUser = async () => {
-            setLoading(true);
-            try {
-                const response = await axios.get(`${findUserByIDRoute}?id=${userID}`);
-                setUserInfo(response.data);
-                console.log(response);
-                setLoading(false);
-            } catch (error) {
-                console.log(error);
-                toast.error('Failed to load User');
-                setLoading(false);
-            }
-        };
-        fetchUser();
+        if(userID){
+            const fetchUser = async () => {
+                setLoading(true);
+                try {
+                    const response = await axios.get(`${findUserByIDRoute}?id=${userID}`);
+                    setUserInfo(response.data.user);
+                    setLoading(false);
+                } catch (error) {
+                    console.log(error);
+                    toast.error('Failed to load User');
+                    setLoading(false);
+                }
+            };
+            fetchUser();
+        }
     }, [userID]);
 
     const handleChange = (e) => {
@@ -46,16 +49,11 @@ export default function BalanceTransfer() {
         try {
             setLoading(true);
             if(userInfo.balance >= formData.amount){
-                const config = {
-                    headers: {
-                      'Content-Type': 'application/json',
-                    },
-                };
                 const response = await axios.post(transferBalanceRoute, {
                     senderId: userInfo?._id,
                     email: formData.email,
                     amount: parseFloat(formData.amount),
-                }, config);
+                });
                 dispatch(userLogin(response.data));
                 localStorage.setItem('userInfo', JSON.stringify(response.data));
                 toast.success("Balance Transfered Successfully!");
@@ -83,7 +81,13 @@ export default function BalanceTransfer() {
             </div>
             <div className=' w-full md:w-[82%] bg-slate-200 overflow-auto '>
                 <Nav /> 
-                <div className=' w-full flex flex-col justify-center items-center gap-8 mt-12'>
+                {loading ? (
+                    <div className=' mt-12 flex justify-center'>
+                        <Loader />
+                    </div>
+                ) 
+                :
+                (<div className=' w-full flex flex-col justify-center items-center gap-8 mt-12'>
                     <h1 className=' font-bold text-3xl'>Balance Transfer</h1>
 
                     <div className=' w-[90%] bg-white rounded-lg shadow-lg py-4 flex flex-col justify-start items-center gap-12'>
@@ -118,7 +122,7 @@ export default function BalanceTransfer() {
                         </form>
                     </div>
 
-                </div>
+                </div>)}
             </div>
         </div>
     </div>

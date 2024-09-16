@@ -6,6 +6,8 @@ import Nav from '../components/Nav';
 import { findUserByIDRoute } from '../utils/ApiRoutes';
 import { toast } from 'react-toastify';
 import axios from 'axios';
+import Loader from '../components/Loader';
+
 
 
 export default function Refferal() {
@@ -15,20 +17,24 @@ export default function Refferal() {
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
-        const fetchUser = async () => {
-            setLoading(true);
-            try {
-                const response = await axios.get(`${findUserByIDRoute}?id=${userID}`);
-                setUserInfo(response.data);
-                setLoading(false);
-            } catch (error) {
-                console.log(error);
-                toast.error('Failed to load User');
-                setLoading(false);
-            }
-        };
-        fetchUser();
+        if(userID){
+            const fetchUser = async () => {
+                setLoading(true);
+                try {
+                    const response = await axios.get(`${findUserByIDRoute}?id=${userID}`);
+                    setUserInfo(response.data.user);
+                    setLoading(false);
+                } catch (error) {
+                    console.log(error);
+                    toast.error('Failed to load User');
+                    setLoading(false);
+                }
+            };
+            fetchUser();
+        }
     }, [userID]);
+
+    console.log(userInfo);
 
     const dispatch = useDispatch();
 
@@ -55,7 +61,11 @@ export default function Refferal() {
             </div>
             <div className=' w-full md:w-[82%] bg-slate-200 overflow-auto '>
                 <Nav />
-                <div className=' flex flex-col items-center justify-center gap-20 mt-12'>
+                {loading ? (
+                    <div className=' mt-12 flex justify-center'>
+                        <Loader />
+                    </div>
+                ):(<div className=' flex flex-col items-center justify-center gap-20 mt-12'>
                     <div className=" w-[90%] py-4 bg-white rounded shadow-md">
                         <label className="block text-gray-600 text-xl font-medium mb-4 px-4">
                             Referrer Link
@@ -91,9 +101,9 @@ export default function Refferal() {
                                 userInfo.refers.map((refer, index) => (
                                 <tr key={refer.id} className="border-b">
                                     <td className="py-2 px-4">{index + 1}</td>
-                                    <td className="py-2 px-4">{userInfo?.refers.user}</td>
-                                    <td className="py-2 px-4">{userInfo?.refers.email}</td>
-                                    <td className="py-2 px-4">{new Date(userInfo.refers.joined).toLocaleDateString()}</td>
+                                    <td className="py-2 px-4">{refer.name}</td>
+                                    <td className="py-2 px-4">{refer.email}</td>
+                                    <td className="py-2 px-4">{new Date(refer.joined).toLocaleDateString()}</td>
                                 </tr>
                                 ))
                             ) : (
@@ -106,7 +116,7 @@ export default function Refferal() {
                             </tbody>
                         </table>
                     </div>
-                </div> 
+                </div>)}
             </div>  
         </div>
     </div>

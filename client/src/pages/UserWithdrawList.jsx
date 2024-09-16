@@ -5,6 +5,9 @@ import { useSelector } from 'react-redux';
 import { findUserByIDRoute, getUserWithdrawsRoute } from '../utils/ApiRoutes';
 import axios from 'axios';
 import { toast } from 'react-toastify';
+import { useLocation } from 'react-router-dom';
+import Loader from '../components/Loader';
+
 
 export default function UserWithdrawList() {
 
@@ -14,23 +17,25 @@ export default function UserWithdrawList() {
   
   const {userID} = useSelector((state) => state.user);
   const [loading, setLoading] = useState(false);
-
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const status = queryParams.get('status');
 
   useEffect(() => {
     const fetchWithdraws = async () => {
         setLoading(true);
         try {
-            const response = await axios.get(`${getUserWithdrawsRoute}?page=${currentPage}&id=${userID}`);
-            setWithdraws(response.data.data);
+          const response = await axios.get(`${getUserWithdrawsRoute}?page=${currentPage}&id=${userID}&status=${status || ''}`);
+          setWithdraws(response.data.data);
             setTotalPages(response.data.totalPages || 1);
             setLoading(false);
         } catch (error) {
-            setLoading(false);
+            setLoading(false); 
             toast.error('Failed to load users');
         }
     };
     fetchWithdraws();
-}, [currentPage]);
+}, [currentPage, status]);
 
   const handlePageChange = (newPage) => {
     setCurrentPage(newPage);
@@ -46,7 +51,11 @@ export default function UserWithdrawList() {
         <div className=' w-full md:w-[82%] bg-slate-200 overflow-auto '>
           <Nav />
 
-          <div className='w-full flex flex-col justify-center items-center gap-6 mt-12'>
+          {loading ? (
+            <div className=' mt-12 flex justify-center'>
+              <Loader />
+            </div>
+          ):(<div className='w-full flex flex-col justify-center items-center gap-6 mt-12'>
             <div className='w-[90%] flex justify-between items-center'>
               <span className='font-medium text-2xl text-gray-700'>Withdraw List</span>
               {/* add search option */}
@@ -80,7 +89,7 @@ export default function UserWithdrawList() {
                     ))
                   ) : (
                     <tr className=' w-full'>
-                      <td className=" w-full py-2 px-4 text-center" colSpan="4">
+                      <td className=" w-full py-2 px-4 text-center" colSpan="7">
                         No data found
                       </td>
                     </tr>
@@ -104,7 +113,7 @@ export default function UserWithdrawList() {
                 ))}
               </div>
             )}
-          </div>
+          </div>)}
         </div>
     
       </div>

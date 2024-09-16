@@ -5,6 +5,8 @@ import { toast } from 'react-toastify';
 import Sidebar from '../components/Sidebar';
 import Nav from '../components/Nav';
 import { useSelector } from 'react-redux';
+import Loader from '../components/Loader';
+
 
 
 export default function UserDepositList() {
@@ -46,7 +48,11 @@ export default function UserDepositList() {
         <div className=' w-full md:w-[82%] bg-slate-200 overflow-auto '>
             <Nav />
 
-            <div className='w-full flex flex-col justify-center items-center gap-6 mt-12'>
+            {loading ? (
+                <div className=' mt-12 flex justify-center'>
+                    <Loader />
+                </div>
+            ):(<div className='w-full flex flex-col justify-center items-center gap-6 mt-12'>
                 <div className='w-[90%] flex justify-between items-center'>
                     <span className='font-medium text-2xl text-gray-700'>Deposit List</span>
                     {/* add search option */}
@@ -82,7 +88,7 @@ export default function UserDepositList() {
                                 ))
                                 ) : (
                                 <tr>
-                                    <td className="py-2 px-4 text-center" colSpan="4">
+                                    <td className="py-2 px-4 text-center" colSpan="8">
                                         No data found
                                     </td>
                                 </tr>
@@ -105,7 +111,7 @@ export default function UserDepositList() {
                         ))}
                     </div>
                 )}
-            </div>
+            </div>)}
         </div>
     
       </div>

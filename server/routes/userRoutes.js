@@ -1,19 +1,15 @@
 import express from 'express';
 import User from '../models/User.js';
 import Task from '../models/Task.js';
-import Query from '../models/Query.js'
 import asyncHandler from 'express-async-handler';
-import jwt from 'jsonwebtoken';
 import Token from '../models/Token.js';
-import sendMail from '../utils/sendMail.js';
+import sendVerificationMail from '../utils/sendMail.js';
 import crypto from "crypto";
-// import { protectRoute, admin } from '../middleware/authMiddleware.js';
+import Withdraw from '../models/Withdraw.js';
+import { generateTokenAndSetCookie } from '../utils/genTokenAndSetCookies.js';
+import {verifyToken} from '../middleware/verifyToken.js';
 
 const userRoutes = express.Router();
-
-const genToken = (id) => {
-    return jwt.sign({ id }, process.env.TOKEN, { expiresIn: '30d' });
-};
 
 function generateID() {
   const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -25,6 +21,7 @@ function generateID() {
 }
 
 const registerUser = asyncHandler(async (req, res) => {
+  
     const { ref, name, email, password, transactionPassword } = req.body;
     const refExists = await User.findOne({ referralId: ref });
     // if (!refExists) {
@@ -48,13 +45,14 @@ const registerUser = asyncHandler(async (req, res) => {
         password,
         transactionPassword,
         referralId,
-        referredBy: ref || null,
+        referredBy: refExists ? refExists._id : null,
       });
 
       if (user && refExists) {
         refExists.refers.push({
-          user: name,
-          email: email,
+          user: user._id,
+          name: user.name,
+          email: user.email,
           joined: new Date(),
         });
         await refExists.save();
@@ -68,7 +66,7 @@ const registerUser = asyncHandler(async (req, res) => {
 
         const url = `${process.env.BASE_URL}/users/verifyUser/${user._id}/${token.token}`;
 
-        await sendMail(user.email, "Verify Email", url);
+        await sendVerificationMail(user.email, "Verify Your Email", url);
 
         res.status(201).json("An Email sent to your account. Please verify!");
 
@@ -77,7 +75,8 @@ const registerUser = asyncHandler(async (req, res) => {
         throw new Error('Something went wrong. Please check your data and try again.');
       }  
     } catch (error) {
-      console.log(error.message);
+      console.log(error);
+      res.status(500).send('Internal Server Error');
     }
     
 });
@@ -94,67 +93,67 @@ const verifyUser = asyncHandler (async (req, res) => {
 			token: req.params.token,
 		});
     
-		if (!token) return res.status(400).send({ message: "Invalid link" });
+		if (!token) return res.status(400).send("Invalid link");
 
 		await User.updateOne({ _id: user._id }, { $set: { verified: true } });
 		await token.deleteOne();
 
-		res.status(200).send({ message: "Email verified successfully" });
+		res.status(200).send("Email verified successfully");
 	} catch (error) {
-		res.status(500).send({ message: "Internal Server Error" });
+		res.status(500).send("Internal Server Error");
 	}
 })
 
 const loginUser = asyncHandler(async (req, res) => {
-  const { email, password } = req.body;
-  const user = await User.findOne({ email });
+  console.log("hi");
+  try {
+    const { email, password } = req.body;
+    const user = await User.findOne({ email });
 
-  if(user.banned){
-    return res.status(401).send('You are Banned!');
-  }
-
-  if (user && (await user.matchPasswords(password))) {
-    if (!user.verified) {
-			let token = await Token.findOne({ userId: user._id });
-			if (!token) {
-				token = await new Token({
-					userId: user._id,
-					token: crypto.randomBytes(32).toString("hex"),
-				}).save();
-				const url = `${process.env.BASE_URL}/users/verifyUser/${user._id}/${token.token}`;
-				await sendMail(user.email, "Verify Email", url);
-			}
-
-			return res
-				.status(400)
-				.send({ message: "An Email sent to your account please verify" });
-		}
-    
-    const {password: pass, ...rest} = user._doc;
-
-    const now = new Date();
-    const lastLogin = user.lastLogin ? new Date(user.lastLogin) : null;
-
-    if (!lastLogin || now.toDateString() !== lastLogin.toDateString()) {
-      user.dayReset = 0; // Reset the property
-      user.lastLogin = now;
+    if(user.banned){
+      return res.status(401).send('You are Banned!');
     }
-    await user.save();
-    console.log(rest);
 
-    res.status(201).json(rest._id);
-  } else {
-    res.status(401).send('Invalid Email or Password');
-    throw new Error('User not found.');
+    if (user && (await user.matchPasswords(password))) {
+      if (!user.verified) {
+        let token = await Token.findOne({ userID: user._id });
+        if (!token) {
+          token = await new Token({
+            userID: user._id,
+            token: crypto.randomBytes(32).toString("hex"),
+          }).save();
+          const url = `${process.env.BASE_URL}/users/verifyUser/${user._id}/${token.token}`;
+          await sendVerificationMail(user.email, "Verify Email", url);
+        }
+
+        return res
+          .status(400)
+          .send("An Email sent to your account please verify");
+      }
+      
+      generateTokenAndSetCookie(res, user._id, user.admin);
+
+      const {password: pass, ...rest} = user._doc;
+      res.status(201).json(rest._id);
+    } else {
+      res.status(401).send('Invalid Email or Password');
+      throw new Error('User not found.');
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).send('Internal server error');
   }
 });
 
 export const signout = (req, res, next) => {
   try {
-      res.
-          clearCookie('access_token')
-          .status(200)
-          .json('Signed Out Successfully!')
+    res.cookie('token', '', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      expires: new Date(0) // Expire the cookie immediately
+    });
+    res.status(200).json('Logout successful');
   } catch (error) {
       next(error);
   } 
@@ -165,7 +164,6 @@ export const subscribe = async (req, res, next) => {
   try {
     const user = await User.findById(id);
     const currentB = user.balance - type;
-    console.log(currentB, type);
     
     user.subscribed = value || user.subscribed;
     user.balance = currentB;
@@ -177,39 +175,6 @@ export const subscribe = async (req, res, next) => {
       next(error);
   } 
 }
-
-export const fetchTask = asyncHandler(async (req, res) => {
-  const {id} = req.body;
-  console.log("fetchTask");
-
-  const task = await Task.findOne({ "users.id": { $ne: id } });
-  if (task) {
-    const user = await User.findById(id);
-    user.currentSurvey = task._id;
-    user.currentIndex = 0;
-    user.dayReset = 1;
-    task.users.push({ id });
-    await task.save();
-    const updatedUser = await user.save();
-    const { password, ...rest } = updatedUser._doc;
-
-    // const completedWithdrawals = updatedUser.withdrawalList.filter(withdrawal => withdrawal.status === 'complete');
-    // const pendingWithdrawals = updatedUser.withdrawalList.filter(withdrawal => withdrawal.status === 'pending');
-    // const rejectedWithdrawals = updatedUser.withdrawalList.filter(withdrawal => withdrawal.status === 'rejected');
-
-    // rest.complete = completedWithdrawals;
-    // rest.pending = pendingWithdrawals;
-    // rest.reject = rejectedWithdrawals;
-
-    // const queries = await Query.find({ userID:updatedUser._id }).sort({ createdAt: -1 });
-
-    // rest.queries = queries;
-
-    res.status(200).json(rest);
-  } else {
-    res.status(404).json('Task not Found!');
-  }
-});
 
 const getTaskById = asyncHandler(async (req, res) => {
   const {id} = req.body;
@@ -249,19 +214,29 @@ export const surveyDone = asyncHandler(async (req, res) => {
     user.currentIndex = 0;
     user.currentSurvey = "";
     user.surveyCount = user.surveyCount+1;
-    user.dayReset = 2;
     user.balance = user.balance + task.reward;
     user.income = user.income + task.reward;
 
     if (user.referredBy) {
       const referrer = await User.findOne({ referralId: user.referredBy });
       if (referrer) {
-        const referralBonus = reward * 0.05;
+        const referralBonus = task.reward * 0.05;
         referrer.refferalIncome += referralBonus;
         referrer.balance += referralBonus;
+
+        referrer.refferalIncomeList.push({
+          user: user._id,
+          name: user.name,
+          email: user.email,
+          earned: referralBonus,
+          time: new Date(), // Capture current date and time
+        });
         await referrer.save();
       }
     }
+
+    const now = new Date();
+    user.lastWorked = now;
 
     const updatedUser = await user.save();
     const { password, ...rest } = updatedUser._doc;
@@ -283,7 +258,6 @@ export const transferBalance = async (req, res) => {
           return res.status(404).json({ message: 'User not found' });
       }
 
-      //console.log(sender.email == receiver.email);
 
       if (sender.email === receiver.email) {
         return res.status(500).json({ message: 'Receiver and Sender can not be same.' });
@@ -309,29 +283,50 @@ export const transferBalance = async (req, res) => {
 const findUserByID = async (req, res) => {
     try {
         const id = req.query.id;
+        const page = parseInt(req.query.page) || 1;
+        const limit = 25;
+        const skip = (page - 1) * limit;
+
         const user = await User.findById(id);
 
         if(!user){
           res.status(404).json({ message: 'User Not Found!' });
         }
 
-        const { password, ...rest } = user._doc;
-        const completedWithdrawals = user.withdrawalList.filter(withdrawal => withdrawal.status === 'complete');
-        const pendingWithdrawals = user.withdrawalList.filter(withdrawal => withdrawal.status === 'pending');
-        const rejectedWithdrawals = user.withdrawalList.filter(withdrawal => withdrawal.status === 'rejected');
+        const now = new Date();
+        if(user.currentSurvey === "" && (!user.lastWorked || now.toDateString() !== new Date(user.lastWorked).toDateString())){
+          const task = await Task.findOne({ "users.id": { $ne: id } });
+          if (task) {
+            user.currentSurvey = task._id;
+            user.currentIndex = 0;
+            user.dayReset = 1;
+            task.users.push({ id });
+            await task.save();
+          } else {
+            res.status(404).json('No Task Available!');
+          }
+        }
 
-        rest.complete = completedWithdrawals;
-        rest.pending = pendingWithdrawals;
-        rest.reject = rejectedWithdrawals;
+        const updatedUser = await user.save();
+        const { password, ...rest } = updatedUser._doc;
 
-        const queries = await Query.find({ userID:user._id }).sort({ createdAt: -1 });
+        const completedWithdrawalsCount = await Withdraw.countDocuments({ userID: id, status: 'Accepted' });
+        const pendingWithdrawalsCount = await Withdraw.countDocuments({ userID: id, status: 'Pending' });
+        const rejectedWithdrawalsCount = await Withdraw.countDocuments({ userID: id, status: 'Rejected' });
 
-        rest.queries = queries;
+        const sortedReferralIncomeList = user.refferalIncomeList.reverse();
+        const paginatedReferralIncome = sortedReferralIncomeList.slice(skip, skip + limit);
+        rest.refferalIncomeList = paginatedReferralIncome;
 
-        res.status(200).json(rest);
-
-
+        rest.complete = completedWithdrawalsCount;
+        rest.pending = pendingWithdrawalsCount;
+        rest.reject = rejectedWithdrawalsCount;
+        res.status(200).json({
+          user: rest,
+          totalPages: Math.ceil(sortedReferralIncomeList.length / limit)
+      });
     } catch (error) {
+      console.log(error);
       res.status(500).json({ message: 'Server error' });
     }
 }
@@ -341,13 +336,12 @@ const findUserByID = async (req, res) => {
 userRoutes.route('/register').post(registerUser);
 userRoutes.route('/login').post(loginUser);
 userRoutes.route('/logout').post(signout);
-userRoutes.route('/subscribe').post(subscribe);
-userRoutes.route('/fetchTask').post(fetchTask);
-userRoutes.route('/getTaskById').post(getTaskById);
-userRoutes.route('/nextIndex').post(nextIndex);
-userRoutes.route('/surveyDone').post(surveyDone);
-userRoutes.route('/transferBalance').post(transferBalance);
-userRoutes.route('/findUserByID').get(findUserByID);
+userRoutes.route('/subscribe').post(verifyToken, subscribe);
+userRoutes.route('/getTaskById').post(verifyToken, getTaskById);
+userRoutes.route('/nextIndex').post(verifyToken, nextIndex);
+userRoutes.route('/surveyDone').post(verifyToken, surveyDone);
+userRoutes.route('/transferBalance').post(verifyToken, transferBalance);
+userRoutes.route('/findUserByID').get(verifyToken, findUserByID);
 userRoutes.route('/verifyUser/:id/:token').get(verifyUser);
 
 

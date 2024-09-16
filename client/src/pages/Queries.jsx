@@ -3,6 +3,8 @@ import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { addReplyRoute, findUserByIDRoute, getAllQueriesRoute } from '../utils/ApiRoutes';
 import { toast } from 'react-toastify';
+import Loader from '../components/Loader';
+
 
 export default function Queries() {
   const [queries, setQueries] = useState([]);
@@ -16,19 +18,21 @@ export default function Queries() {
   const [loading, setLoading] = useState(false);
 
     useEffect(() => {
-        const fetchUser = async () => {
-            setLoading(true);
-            try {
-                const response = await axios.get(`${findUserByIDRoute}?id=${userID}`);
-                setUserInfo(response.data);
-                setLoading(false);
-            } catch (error) {
-                console.log(error);
-                toast.error('Failed to load User');
-                setLoading(false);
-            }
-        };
-        fetchUser();
+        if(userID){
+            const fetchUser = async () => {
+                setLoading(true);
+                try {
+                    const response = await axios.get(`${findUserByIDRoute}?id=${userID}`);
+                    setUserInfo(response.data.user);
+                    setLoading(false);
+                } catch (error) {
+                    console.log(error);
+                    toast.error('Failed to load User');
+                    setLoading(false);
+                }
+            };
+            fetchUser();
+        }
     }, [userID]);
 
   useEffect(() => {
@@ -65,6 +69,14 @@ export default function Queries() {
       toast.error('Failed to add reply');
     }
   };
+
+  if(loading){
+    return(
+      <div className=' mt-12 flex justify-center'>
+        <Loader />
+      </div>
+    )
+  }
 
   return (
     <div>

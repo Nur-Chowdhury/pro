@@ -3,7 +3,7 @@ import Sidebar from '../components/Sidebar'
 import Nav from '../components/Nav'
 import { useDispatch, useSelector } from 'react-redux'
 import { setAmount } from '../redux/slices/commonSlice';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
 export default function Deposit() {
@@ -31,7 +31,7 @@ export default function Deposit() {
           <Nav />
           <div className=' m-8'>
             <span className=' text-2xl font-medium text-gray-800'>Payment Preview</span>
-            <div className='  w-[50%] md:w-[90%] mt-8 mx-20 flex flex-col justify-center items-center gap-4'>
+            <div className='mt-8 mx-auto flex flex-col justify-center items-center gap-4'>
                 <div className='flex flex-col justify-center items-center bg-white py-4 px-12 rounded-lg gap-4'>
                     <div className=' w-full flex gap-4 justify-between items-center'>
                         <span className=' text-lg font-medium'>Amount:</span>

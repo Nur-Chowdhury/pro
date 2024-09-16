@@ -16,9 +16,21 @@ const withdrawSchema = new mongoose.Schema(
 
 const referSchema = new mongoose.Schema(
   {
-    user: { type: String, required: true },
-    email: { type: String, required: true },
+    user: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'User' },
+    name: { type: String, required: true,},
+    email: { type: String, required: true,},
     joined: { type: Date, required: true},
+  },
+  { timestamps: true }
+);
+
+const referEarnSchema = new mongoose.Schema(
+  {
+    user: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'User' },
+    name: { type: String, required: true,},
+    email: { type: String, required: true,},
+    earned: { type: Number, default: 0 },
+    time: { type: Date, required: true},
   },
   { timestamps: true }
 );
@@ -71,14 +83,17 @@ const userSchema = new mongoose.Schema(
       type: String,
       unique: true,
     },
-    referredBy: {
-      type: String,
+    referredBy: { 
+      type: mongoose.Schema.Types.ObjectId, 
+      // required: true, 
+      ref: 'User',
     },
     refers:[referSchema],
     refferalIncome:{
       type: Number,
       default: 0.0,
     },
+    refferalIncomeList:[referEarnSchema],
     admin:{
       type: Boolean,
       default: false,
@@ -87,13 +102,9 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: "none",
     },
-    lastLogin: { 
+    lastWorked: { 
       type: Date, 
-      default: null 
-    }, 
-    dayReset: {
-      type: Number,
-      default: 0,
+      default: null
     },
     surveyCount: {
       type: Number,

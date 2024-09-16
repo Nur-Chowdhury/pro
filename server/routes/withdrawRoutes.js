@@ -1,5 +1,6 @@
 import express from 'express'
 import Withdraw from '../models/Withdraw.js';
+import {verifyToken} from '../middleware/verifyToken.js';
 
 const withdrawRoutes = express.Router();
 
@@ -40,13 +41,17 @@ export const getUserWithdraws = async (req, res) => {
   const page = parseInt(req.query.page) || 1;
   const id = req.query.id;
   const limit = 25;
+  const status = req.query.status;
 
   try {
-    // Get the total count of withdrawals for the given user
-    const total = await Withdraw.countDocuments({ userID: id });
 
-    // Fetch withdrawals with pagination
-    const withdraws = await Withdraw.find({ userID: id })
+    const query = { userID: id };
+    if (status) {
+      query.status = status;
+    }
+    const total = await Withdraw.countDocuments(query);
+
+    const withdraws = await Withdraw.find(query)
       .populate('userID', 'name email')
       .sort({ createdAt: -1 })
       .skip((page - 1) * limit)
@@ -65,9 +70,9 @@ export const getUserWithdraws = async (req, res) => {
       error: error.message,
     });
   }
-};
+}; 
 
-withdrawRoutes.route('/add').post(addWithdrawRequest);
-withdrawRoutes.route('/getUserWithdraws').get(getUserWithdraws);
+withdrawRoutes.route('/add').post(verifyToken, addWithdrawRequest);
+withdrawRoutes.route('/getUserWithdraws').get(verifyToken, getUserWithdraws);
 
 export default withdrawRoutes;

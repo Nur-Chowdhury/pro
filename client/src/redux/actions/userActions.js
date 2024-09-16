@@ -10,16 +10,12 @@ import {
 import { loginRoute, registerRoute, subscribeRoute } from '../../utils/ApiRoutes';
 import {toast} from 'react-toastify';
 
+axios.defaults.withCredentials = true;
+
 export const register = (refID, name, email, password, transactionPassword) => async (dispatch) => {
     dispatch(setLoading(true));
     try {
-      const config = { 
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      };
-  
-      const { data } = await axios.post(registerRoute, {refID, name, email, password, transactionPassword }, config);
+      const { data } = await axios.post(registerRoute, {refID, name, email, password, transactionPassword });
       console.log(data);
       toast.success(data);
       dispatch(setLoading(false));
@@ -39,19 +35,16 @@ export const register = (refID, name, email, password, transactionPassword) => a
 export const login = (email, password) => async (dispatch) => {
   dispatch(setLoading(true));
   try {
-    const config = {
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    }; 
-
-    const { data } = await axios.post(loginRoute, { email, password }, config);
+    console.log("hi");
+        
+    const { data } = await axios.post(loginRoute, { email, password });
     console.log(data);
     dispatch(userLogin(data));
     localStorage.setItem('userID', JSON.stringify(data));
     toast.success("Login Success!");
     dispatch(setLoading(false));
   } catch (error) {
+    console.log(error);
       toast.error(
         error.response && error.response.data
           ? error.response.data

@@ -20,7 +20,6 @@ export default function Login() {
     useEffect(() => {
         if (userID) {
           navigate('/dashboard');
-          toast.success("Welcome!");
         }
     }, [userID, navigate]);
 

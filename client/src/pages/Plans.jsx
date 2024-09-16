@@ -8,6 +8,8 @@ import { subscribe } from '../redux/actions/userActions';
 import { toast } from 'react-toastify';
 import { findUserByIDRoute } from '../utils/ApiRoutes';
 import axios from 'axios';
+import Loader from '../components/Loader';
+
 
 
 
@@ -19,19 +21,21 @@ export default function Plans() {
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
-        const fetchUser = async () => {
-            setLoading(true);
-            try {
-                const response = await axios.get(`${findUserByIDRoute}?id=${userID}`);
-                setUserInfo(response.data);
-                setLoading(false);
-            } catch (error) {
-                console.log(error);
-                toast.error('Failed to load User');
-                setLoading(false);
-            }
-        };
-        fetchUser();
+        if(userID){
+            const fetchUser = async () => {
+                setLoading(true);
+                try {
+                    const response = await axios.get(`${findUserByIDRoute}?id=${userID}`);
+                    setUserInfo(response.data.user);
+                    setLoading(false);
+                } catch (error) {
+                    console.log(error);
+                    toast.error('Failed to load User');
+                    setLoading(false);
+                }
+            };
+            fetchUser();
+        }
     }, [userID]);
 
     const handleClick = (type) => {
@@ -53,11 +57,17 @@ export default function Plans() {
             </div>
             <div className=' w-full md:w-[82%] bg-slate-200 overflow-auto '>
                 <Nav />
-                <div className=' w-full flex flex-col justify-center items-center gap-12 mt-12'>
+                {loading ? (
+                    <div className=' mt-12 flex justify-center'>
+                        <Loader />
+                    </div>
+                )
+                :
+                (<div className=' w-full flex flex-col justify-center items-center gap-12 mt-12'>
                     <h1 className=' font-bold text-3xl'>Plans</h1>
 
-                    <div className=' flex flex-col md:flex-row w-full justify-center items-center gap-8'>
-                        <div className=' w-[80%] md:w-[35%] bg-white h-[500px] rounded-lg shadow-lg p-8 flex flex-col justify-start items-center '>
+                    <div className=' flex flex-col md:flex-row w-full justify-center items-center gap-8 mb-16'>
+                        <div className=' w-[80%] md:w-[35%] bg-white rounded-lg shadow-lg p-8 flex flex-col justify-start items-center '>
                             <div className=' flex justify-center items-center my-4'>
                                 <span className=' text-gray-700 font-bold text-4xl'>Silver</span>
                             </div>
@@ -124,7 +134,7 @@ export default function Plans() {
                             </button>
                         </div>
 
-                        <div className=' w-[80%] md:w-[35%] bg-white h-[500px] rounded-lg shadow-lg p-8 flex flex-col justify-start items-center '>
+                        <div className=' w-[80%] md:w-[35%] bg-white rounded-lg shadow-lg p-8 flex flex-col justify-start items-center '>
                             <div className=' flex justify-center items-center my-4'>
                                 <span className=' text-gray-700 font-bold text-4xl'>Gold</span>
                             </div>
@@ -194,7 +204,7 @@ export default function Plans() {
                         </div>
                     </div>
 
-                </div> 
+                </div>)}
             </div>
         </div>
     </div>

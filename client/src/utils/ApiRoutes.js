@@ -21,6 +21,7 @@ export const addDepositRoute = `${host}/api/deposit/add`;
 export const addWithdrawRoute = `${host}/api/withdraw/add`;
 export const getAllWithdrawsRoute = `${host}/api/admins/getAllWithdraws`;
 export const getUserWithdrawsRoute = `${host}/api/withdraw/getUserWithdraws`;
+export const getUserQueriesRoute = `${host}/api/query/getUserQueries`;
 export const acceptWithdrawRoute = `${host}/api/admins/acceptWithdraw`;
 export const rejectWithdrawRoute = `${host}/api/admins/rejectWithdraw`;
 export const banUserRoute = `${host}/api/admins/banUser`;

@@ -3,11 +3,13 @@ import { IoMdAlert } from "react-icons/io";
 import { FcSurvey } from "react-icons/fc";
 import survey from '../assets/survey.jpg';
 import {useDispatch, useSelector} from  'react-redux'
-import { getTask, setUserTask } from '../redux/actions/taskAction';
+import { getTask } from '../redux/actions/taskAction';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { findUserByIDRoute } from '../utils/ApiRoutes';
 import {toast} from 'react-toastify'
+
+axios.defaults.withCredentials = true;
 
 export default function Post() {
 
@@ -18,27 +20,27 @@ export default function Post() {
   const [userInfo, setUserInfo] = useState({});
   const [loading, setLoading] = useState(false);
 
-    useEffect(() => {
-        const fetchUser = async () => {
-            setLoading(true);
-            try {
-                const response = await axios.get(`${findUserByIDRoute}?id=${userID}`);
-                setUserInfo(response.data);
-                setLoading(false);
-            } catch (error) {
-                console.log(error);
-                toast.error('Failed to load User');
-                setLoading(false);
-            }
-        };
-        fetchUser();
-    }, [userID]);
+  useEffect(() => {
+      const fetchUser = async () => {
+          setLoading(true);
+          try {
+              const response = await axios.get(`${findUserByIDRoute}?id=${userID}`);
+              setUserInfo(response.data);
+              setLoading(false);
+          } catch (error) {
+              console.log(error);
+              toast.error('Failed to load User');
+              setLoading(false);
+          }
+      };
+      fetchUser();
+  }, [userID]);
+
+  console.log(currentTask, userInfo.currentSurvey);
+  
 
   useEffect(() => {
-    if (currentTask === null && userInfo.dayReset === 0) {
-      dispatch(setUserTask(userInfo._id));
-    }
-    if (currentTask === null && userInfo.dayReset === 1) {
+    if (currentTask === null && userInfo.currentSurvey) {
       dispatch(getTask(userInfo.currentSurvey));
     }
   }, []);

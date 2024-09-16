@@ -23,7 +23,7 @@ export default function WithdrawF() {
             </div>
             <div className=' w-full md:w-[82%] bg-slate-200 overflow-auto '>
                 <Nav />
-                <div className=' w-full flex flex-col justify-center items-center gap-12 mt-12'>
+                <div className=' w-full flex flex-col justify-center items-center gap-12 mt-12 mb-6'>
                     <h1 className=' font-bold text-3xl'>Withdraw</h1>
 
                     <div className=' flex flex-col md:flex-row w-full justify-center items-center gap-8'>
@@ -38,7 +38,7 @@ export default function WithdrawF() {
                                 className=' w-full h-[80%]' 
                             />
 
-                            <Link className=" w-full flex items-center justify-center" to={"/withdraw/amount"}>
+                            <Link className=" w-full flex items-center justify-center" to={"/withdraw/amount/bkash"}>
                                 <button className=' flex items-center justify-center my-6 w-[75%] h-[40px] rounded-lg border-2 border-blue-500 font-medium 
                                     text-lg hover:bg-blue-500 hover:text-white' >
                                     Withdraw
@@ -57,7 +57,7 @@ export default function WithdrawF() {
                                 className=' w-full h-[80%]' 
                             />
 
-                            <Link className=" w-full flex items-center justify-center"><button className=' flex items-center justify-center my-6 w-[75%] h-[40px] rounded-lg border-2 border-blue-500 font-medium 
+                            <Link className=" w-full flex items-center justify-center" to={"/withdraw/amount/binance"}><button className=' flex items-center justify-center my-6 w-[75%] h-[40px] rounded-lg border-2 border-blue-500 font-medium 
                                 text-lg hover:bg-blue-500 hover:text-white'>
                                 Withdraw
                             </button></Link>

@@ -3,6 +3,8 @@ import {setLoading, setError, setTask, removeTask} from '../slices/taskSlice'
 import { fetchTaskRoute, getTaskByIdRoute, nextIndexRoute, surveyDoneRoute } from "../../utils/ApiRoutes";
 import { userLogin } from "../slices/user";
 
+axios.defaults.withCredentials = true;
+
 
 export const setUserTask = (id) => async (dispatch) => {
     dispatch(setLoading(true));

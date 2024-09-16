@@ -7,6 +7,8 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { findUserByIDRoute } from '../utils/ApiRoutes';
 import axios from 'axios';
+import Loader from '../components/Loader';
+
 
 
 export default function NewQuery() {
@@ -19,19 +21,21 @@ export default function NewQuery() {
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
-        const fetchUser = async () => {
-            setLoading(true);
-            try {
-                const response = await axios.get(`${findUserByIDRoute}?id=${userID}`);
-                setUserInfo(response.data);
-                setLoading(false);
-            } catch (error) {
-                console.log(error);
-                toast.error('Failed to load User');
-                setLoading(false);
-            }
-        };
-        fetchUser();
+        if(userID){
+            const fetchUser = async () => {
+                setLoading(true);
+                try {
+                    const response = await axios.get(`${findUserByIDRoute}?id=${userID}`);
+                    setUserInfo(response.data.user);
+                    setLoading(false);
+                } catch (error) {
+                    console.log(error);
+                    toast.error('Failed to load User');
+                    setLoading(false);
+                }
+            };
+            fetchUser();
+        }
     }, [userID]);
 
     const handleSubmit = (e) => {
@@ -53,7 +57,13 @@ export default function NewQuery() {
         </div>
         <div className=' w-full md:w-[82%] bg-slate-200 overflow-auto'>
           <Nav />
-          <div className=' w-full flex justify-center'>
+          {loading ?(
+            <div className=' mt-12 flex justify-center'>
+              <Loader />
+            </div>
+          ) 
+          :
+          (<div className=' w-full flex justify-center'>
             <div className=' w-[90%] flex flex-col items-center justify-center gap-20 my-8'>
                 <span className=' w-full text-center text-2xl font-bold'>Your Query</span>
 
@@ -76,7 +86,7 @@ export default function NewQuery() {
                     </button>
                 </form>
             </div>
-          </div>
+          </div>)}
         </div>
     
       </div>

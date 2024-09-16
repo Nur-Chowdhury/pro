@@ -3,6 +3,8 @@ import { useParams, Link } from "react-router-dom";
 import axios from "axios";
 import { emailVerifyRoute } from "../utils/ApiRoutes";
 
+axios.defaults.withCredentials = true;
+
 
 
 const EmailVerify = () => {

@@ -3,6 +3,7 @@ import {useSelector} from 'react-redux'
 import { addTaskRoute, findUserByIDRoute } from '../utils/ApiRoutes';
 import { toast } from 'react-toastify';
 import axios from 'axios';
+import Loader from '../components/Loader';
 
 export default function AddTask() {
     const [form, setForm] = useState({
@@ -16,21 +17,24 @@ export default function AddTask() {
     const [userInfo, setUserInfo] = useState({});
     const [loading, setLoading] = useState(false);
 
+    console.log(userID);
+
     useEffect(() => {
-        const fetchUser = async () => {
-            setLoading(true);
-            try {
-                const response = await axios.get(`${findUserByIDRoute}?id=${userID}`);
-                setUserInfo(response.data);
-                console.log(response);
-                setLoading(false);
-            } catch (error) {
-                console.log(error);
-                toast.error('Failed to load User');
-                setLoading(false);
-            }
-        };
-        fetchUser();
+        if(userID){
+            const fetchUser = async () => {
+                setLoading(true);
+                try {
+                    const response = await axios.get(`${findUserByIDRoute}?id=${userID}`);
+                    setUserInfo(response.data.user);
+                    setLoading(false);
+                } catch (error) {
+                    console.log(error);
+                    toast.error('Failed to load User');
+                    setLoading(false);
+                }
+            };
+            fetchUser();
+        }
     }, [userID]);
 
     const handleSelectChange = (e) => {
@@ -43,29 +47,23 @@ export default function AddTask() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        form.id = userInfo._id;
+        form.id = userInfo._id; // Ensure the user ID is set
         console.log('Form submitted:', form);
-
-
+    
         try {
-            const response = await fetch(addTaskRoute, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(form),
-            });
-            const result = await response.json();
-            if (response.ok) {
-                toast.success(`Form submitted successfully: ${result.message}`);
-                setForm({ questions:[] });
-            } else {
-                toast.error(`Error submitting form: ${result.message}`);
+            const response = await axios.post(addTaskRoute, form);
+            if (response.status === 201) {
+                toast.success(`Form submitted successfully: ${response.data.message}`);
+                setForm({ questions: [] });
+                setIndex(0);
+            } else {    
+                toast.error(`Error submitting form: ${response.data.message}`);
             }
         } catch (error) {
-            toast.error(`Error submitting form: ${error.message}`);
+            toast.error(`Error submitting form: ${error.response?.data?.message || error.message}`);
         }
     };
+    
 
     const handleDone = (e) => {
         e.preventDefault();
@@ -126,7 +124,11 @@ export default function AddTask() {
             <div className='flex items-center justify-center py-8 text-3xl font-extrabold text-white bg-blue-500'>
                 Admin Panel
             </div>
-            <div className='flex flex-col items-center mt-4 px-24 text-xl font-bold'>
+            {loading ? (
+                <div className=' mt-12 flex justify-center'>
+                    <Loader />
+                </div>
+            ):(<div className='flex flex-col items-center mt-4 px-24 text-xl font-bold'>
                 Add Task
                 <form onSubmit={handleSubmit} className='w-[60%] my-8 text-lg font-normal flex flex-col items-start justify-start gap-4'>
                     <div className=' w-full flex justify-start py-4 text-xl'>
@@ -247,7 +249,7 @@ export default function AddTask() {
                         </button>
                     </div>
                 </form>
-            </div>
+            </div>)}
         </div>
     );
 }

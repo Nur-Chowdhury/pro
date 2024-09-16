@@ -1,18 +1,17 @@
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { FaUserCircle } from "react-icons/fa";
-import { toggleMenu } from '../redux/slices/commonSlice';
+import { FaPowerOff, FaUserCircle } from "react-icons/fa";
+import { setItem, toggleMenu } from '../redux/slices/commonSlice';
 import { FaCaretDown, FaCaretUp } from "react-icons/fa";
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { signoutSuccess } from '../redux/slices/user';
 
 
 export default function ResponsiveMenu() {
 
-    const {showMenu} = useSelector((state) => state.common);
-    const {userInfo} = useSelector((state) => state.user);
+    const {showMenu, item} = useSelector((state) => state.common);
 
-    const [nav, setNav] = useState(0);
+    const [up, setUp] = useState(false);
 
     const dispatch = useDispatch();
     const navigate = useNavigate();
@@ -31,6 +30,7 @@ export default function ResponsiveMenu() {
                 console.log(data.message);
             }else{
                 dispatch(signoutSuccess());
+                toast.success("Log Out Success!");
                 navigate("/login");
             }
         } catch (error) {
@@ -47,296 +47,170 @@ export default function ResponsiveMenu() {
         <div className="card">
             <div className="flex flex-col items-center justify-center gap-3">
                 <FaUserCircle size={50} />
-                <div className='flex flex-col items-center justify-center'>
-                    <h1 className=' text-2xl font-bold'>{userInfo.name}</h1>
-                    <h1 className="text-lg font-medium text-slate-500">${userInfo.balance}</h1>
-                </div>
 
                 <nav className=" w-full mt-8 flex flex-col justify-start items-start">
                     <ul className=" w-full text-xl">
-                        
-                        <li onClick={setMenu}>
-                            <a href="#" className="mb-3 inline-block">
+                        <li onClick={()=> {
+                            dispatch(setItem(1));
+                            setMenu();
+                        }} >
+                            <Link to="/dashboard"
+                                className={` w-[95%] mb-3 inline-block hover:bg-slate-200/40 px-2 py-2 rounded-r-3xl ${item===1 ? "bg-slate-200/40":""}`}
+                            >
                                 Dashboard
-                            </a>
+                            </Link>
                         </li>
 
-                        <li className=' mb-3'>
-                            <div>
-                                <div onClick={() => {
-                                        nav===1 ? setNav(0): setNav(1)
-                                    }} 
-                                    className=' flex justify-between'
-                                >
-                                    Account
-                                    <span>
-                                        {nav==1 ? (
-                                            <FaCaretUp className="transition-all duration-200" />
-                                        ):
-                                        (
-                                            <FaCaretDown className="transition-all duration-200" />
-                                        )}
+                        <li onClick={()=> {
+                            dispatch(setItem(2));
+                            setMenu();
+                        }} >
+                            <Link to="/survey" 
+                                className={` w-[95%] mb-3 inline-block hover:bg-slate-200/40 px-2 py-2 rounded-r-3xl ${item===2 ? "bg-slate-200/40":""}`}
+                            >
+                                Start Survey
+                            </Link>
+                        </li>
+
+                        <li onClick={()=> {
+                            dispatch(setItem(3));
+                            setMenu();
+                        }} >
+                            <Link to="/plans"
+                                className={` w-[95%] mb-3 inline-block hover:bg-slate-200/40 px-2 py-2 rounded-r-3xl ${item===3 ? "bg-slate-200/40":""}`}
+                            >
+                                Plan
+                            </Link>
+                        </li>
+
+                        <li onClick={()=> {
+                            dispatch(setItem(5));
+                            setMenu();
+                        }} >
+                            <Link to="/myRefferals"
+                                className={` w-[95%] mb-3 inline-block hover:bg-slate-200/40 px-2 py-2 rounded-r-3xl ${item===5 ? "bg-slate-200/40":""}`}
+                            >
+                                My Refferals
+                            </Link>
+                        </li>
+
+                        <li onClick={()=> {
+                            dispatch(setItem(6));
+                            setMenu();
+                        }} >
+                            <Link to="/deposit"
+                                className={` w-[95%] mb-3 inline-block hover:bg-slate-200/40 px-2 py-2 rounded-r-3xl ${item===6 ? "bg-slate-200/40":""}`}
+                            >
+                                Deposit
+                            </Link>
+                        </li>
+
+                        <li onClick={()=> {
+                            dispatch(setItem(7));
+                            setMenu();
+                        }} >
+                            <Link to="/withdraw"
+                                className={` w-[95%] mb-3 inline-block hover:bg-slate-200/40 px-2 py-2 rounded-r-3xl ${item===7 ? "bg-slate-200/40":""}`}
+                            >
+                                Withdraw
+                            </Link>
+                        </li> 
+
+                        <li onClick={()=> {
+                            dispatch(setItem(8));
+                            setMenu();
+                        }} >
+                            <Link to="/transferBalance"
+                                className={` w-[95%] mb-3 inline-block hover:bg-slate-200/40 px-2 py-2 rounded-r-3xl ${item===8 ? "bg-slate-200/40":""}`}
+                            >
+                                Balance Transfer
+                            </Link>
+                        </li>
+
+                        
+
+                        <li onClick={() => setUp(!up)} className="cursor-pointer">
+                            <div
+                                className={`w-[95%] mb-3 inline-block hover:bg-slate-200/40 px-2 py-2 rounded-r-3xl`}
+                            >
+                                <div className="flex justify-between items-center">
+                                    Reports/Logs
+                                    <span
+                                        className={`transition-transform duration-300 ease-in-out ${
+                                            up ? 'rotate-180' : ''
+                                        }`}
+                                    >
+                                        <FaCaretDown />
                                     </span>
                                 </div>
-                                {nav===1 && (
-                                    <ul className=" ml-4 mt-2 flex flex-col text-white text-md gap-2">
-                                        <li onClick={setMenu} className="cursor-pointer hover:text-primary">
-                                        Profile
-                                        </li>
-                                        <li onClick={setMenu} className="cursor-pointer hover:text-primary">
-                                        Password Change
-                                        </li>
-                                        <li onClick={setMenu} className="cursor-pointer hover:text-primary">
-                                        Pin Change
-                                        </li>
-                                        <li onClick={setMenu} className="cursor-pointer hover:text-primary">
-                                        Verification
-                                        </li>
-                                    </ul>
-                                )}
                             </div>
                         </li>
 
-                        <li className=' mb-3'>
-                            <div>
-                                <div onClick={() => {
-                                        nav===2 ? setNav(0): setNav(2)
-                                    }} 
-                                    className=' flex justify-between'
-                                >
-                                    Coupon Manage
-                                    <span>
-                                        {nav==2 ? (
-                                            <FaCaretUp className="transition-all duration-200" />
-                                        ):
-                                        (
-                                            <FaCaretDown className="transition-all duration-200" />
-                                        )}
-                                    </span>
-                                </div>
-                                {nav===2 && (
-                                    <ul className=" ml-4 mt-2 flex flex-col text-white text-md gap-2">
-                                        <li onClick={setMenu} className="cursor-pointer hover:text-primary">
-                                            Purchase Coupon
-                                        </li>
-                                        <li onClick={setMenu} className="cursor-pointer hover:text-primary">
-                                            Coupon List
-                                        </li>
-                                        <li onClick={setMenu} className="cursor-pointer hover:text-primary">
-                                            Transfer Report
-                                        </li>
-                                        <li onClick={setMenu} className="cursor-pointer hover:text-primary">
-                                            Received Report
-                                        </li>
-                                    </ul>
-                                )}
-                            </div>
+                        <div
+                            className={`ml-12 mb-1 transition-all duration-300 ease-in-out overflow-hidden ${
+                            up ? 'max-h-40' : 'max-h-0'
+                            }`}
+                        >
+                            <ul className="list-disc flex flex-col text-white text-md gap-1">
+                                <li onClick={()=> {
+                                    dispatch(setItem(10));
+                                    setMenu();
+                                }} >
+                                    <Link
+                                        to="/reports/deposit"
+                                        className={`w-[95%] inline-block hover:bg-slate-200/40 rounded-r-3xl ${
+                                            item === 10 ? 'bg-slate-200/40' : ''
+                                        }`}
+                                    >
+                                        Deposit Log
+                                    </Link>
+                                </li>
+                                <li onClick={()=> {
+                                    dispatch(setItem(11));
+                                    setMenu();
+                                }} >
+                                    <Link
+                                        to="/reports/withdraw"
+                                        className={`w-[95%] inline-block hover:bg-slate-200/40 rounded-r-3xl ${
+                                            item === 11 ? 'bg-slate-200/40' : ''
+                                        }`}
+                                    >
+                                        Withdraw Log
+                                    </Link>
+                                </li>
+                                <li onClick={()=> {
+                                    dispatch(setItem(12));
+                                    setMenu();
+                                }} >
+                                    <Link
+                                        to="/reports/refferal_log"
+                                        className={`w-[95%] inline-block hover:bg-slate-200/40 rounded-r-3xl ${
+                                            item === 12 ? 'bg-slate-200/40' : ''
+                                        }`}
+                                    >
+                                        Referral Log
+                                    </Link>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <li onClick={()=> {
+                            dispatch(setItem(9));
+                            setMenu();
+                        }} >
+                            <Link to="/support"
+                                className={` w-[95%] mb-3 inline-block hover:bg-slate-200/40 px-2 py-2 rounded-r-3xl ${item===9 ? "bg-slate-200/40":""}`}
+                            >
+                                Support
+                            </Link>
                         </li>
 
-                        <li className=' mb-3'>
-                            <div>
-                                <div onClick={() => {
-                                        nav===3 ? setNav(0): setNav(3)
-                                    }} 
-                                    className=' flex justify-between'
-                                >
-                                    Task Market
-                                    <span>
-                                        {nav===3 ? (
-                                            <FaCaretUp className="transition-all duration-200" />
-                                        ):
-                                        (
-                                            <FaCaretDown className="transition-all duration-200" />
-                                        )}
-                                    </span>
-                                </div>
-                                {nav===3 && (
-                                    <ul className=" ml-4 mt-2 flex flex-col text-white text-md gap-2">
-                                        <li onClick={setMenu} className="cursor-pointer hover:text-primary">
-                                            Purchase Task
-                                        </li>
-                                        <li onClick={setMenu} className="cursor-pointer hover:text-primary">
-                                            Purchase Report
-                                        </li>
-                                        <li onClick={setMenu} className="cursor-pointer hover:text-primary">
-                                            Transfer Task
-                                        </li>
-                                        <li onClick={setMenu} className="cursor-pointer hover:text-primary">
-                                            Offer Task
-                                        </li>
-                                    </ul>
-                                )}
-                            </div>
-                        </li>
-
-                        <li className=' mb-3'>
-                            <div>
-                                <div onClick={() => {
-                                        nav===4 ? setNav(0): setNav(4)
-                                    }} 
-                                    className=' flex justify-between'
-                                >
-                                    My Team
-                                    <span>
-                                        {nav===4 ? (
-                                            <FaCaretUp className="transition-all duration-200" />
-                                        ):
-                                        (
-                                            <FaCaretDown className="transition-all duration-200" />
-                                        )}
-                                    </span>
-                                </div>
-                                {nav===4 && (
-                                    <ul className=" ml-4 mt-2 flex flex-col text-white text-md gap-2">
-                                        <li onClick={setMenu} className="cursor-pointer hover:text-primary">
-                                            Referral List
-                                        </li>
-                                        <li onClick={setMenu} className="cursor-pointer hover:text-primary">
-                                            Team Members
-                                        </li>
-                                    </ul>
-                                )}
-                            </div>
-                        </li>
-
-                        <li onClick={setMenu}>
-                            <a href="#" className="mb-3 inline-block">
-                                Extra Reward
-                            </a>
-                        </li>
-
-                        <li className=' mb-3'>
-                            <div>
-                                <div onClick={() => {
-                                        nav===5 ? setNav(0): setNav(5)
-                                    }} 
-                                    className=' flex justify-between'
-                                >
-                                    Team Bonus
-                                    <span>
-                                        {nav===5 ? (
-                                            <FaCaretUp className="transition-all duration-200" />
-                                        ):
-                                        (
-                                            <FaCaretDown className="transition-all duration-200" />
-                                        )}
-                                    </span>
-                                </div>
-                                {nav===5 && (
-                                    <ul className=" ml-4 mt-2 flex flex-col text-white text-md gap-2">
-                                        <li onClick={setMenu} className="cursor-pointer hover:text-primary">
-                                            Referral Bonus
-                                        </li>
-                                        <li onClick={setMenu} className="cursor-pointer hover:text-primary">
-                                            Task Bonus
-                                        </li>
-                                        <li onClick={setMenu} className="cursor-pointer hover:text-primary">
-                                            Agent Bonus
-                                        </li>
-                                        <li onClick={setMenu} className="cursor-pointer hover:text-primary">
-                                            Other Bonus
-                                        </li>
-                                    </ul>
-                                )}
-                            </div>
-                        </li>
-
-                        <li className=' mb-3'>
-                            <div>
-                                <div onClick={() => {
-                                        nav===6 ? setNav(0): setNav(6)
-                                    }} 
-                                    className=' flex justify-between'
-                                >
-                                    Team Bonus
-                                    <span>
-                                        {nav===6 ? (
-                                            <FaCaretUp className="transition-all duration-200" />
-                                        ):
-                                        (
-                                            <FaCaretDown className="transition-all duration-200" />
-                                        )}
-                                    </span>
-                                </div>
-                                {nav===6 && (
-                                    <ul className=" ml-4 mt-2 flex flex-col text-white text-md gap-2">
-                                        <li onClick={setMenu} className="cursor-pointer hover:text-primary">
-                                            Deposit
-                                        </li>
-                                        <li onClick={setMenu} className="cursor-pointer hover:text-primary">
-                                            Transfer
-                                        </li>
-                                        <li onClick={setMenu} className="cursor-pointer hover:text-primary">
-                                            Withdraw
-                                        </li>
-                                    </ul>
-                                )}
-                            </div>
-                        </li>
-
-                        <li className=' mb-3'>
-                            <div>
-                                <div onClick={() => {
-                                        nav===7 ? setNav(0): setNav(7)
-                                    }} 
-                                    className=' flex justify-between'
-                                >
-                                    Transaction Report
-                                    <span>
-                                        {nav===7 ? (
-                                            <FaCaretUp className="transition-all duration-200" />
-                                        ):
-                                        (
-                                            <FaCaretDown className="transition-all duration-200" />
-                                        )}
-                                    </span>
-                                </div>
-                                {nav===7 && (
-                                    <ul className=" ml-4 mt-2 flex flex-col text-white text-md gap-2">
-                                        <li onClick={setMenu} className="cursor-pointer hover:text-primary">
-                                            Deposit Report
-                                        </li>
-                                        <li onClick={setMenu} className="cursor-pointer hover:text-primary">
-                                            Transfer Report
-                                        </li>
-                                        <li onClick={setMenu} className="cursor-pointer hover:text-primary">
-                                            Receive Report
-                                        </li>
-                                        <li onClick={setMenu} className="cursor-pointer hover:text-primary">
-                                            Withdraw Report
-                                        </li>
-                                    </ul>
-                                )}
-                            </div>
-                        </li>
-
-                        <li className=' mb-3'>
-                            <div>
-                                <div onClick={() => {
-                                        nav===8 ? setNav(0): setNav(8)
-                                    }} 
-                                    className=' flex justify-between'
-                                >
-                                    Exchange Report
-                                    <span>
-                                        {nav===8 ? (
-                                            <FaCaretUp className="transition-all duration-200" />
-                                        ):
-                                        (
-                                            <FaCaretDown className="transition-all duration-200" />
-                                        )}
-                                    </span>
-                                </div>
-                                {nav===8 && (
-                                    <ul className=" ml-4 mt-2 flex flex-col text-white text-md gap-2">
-                                        <li onClick={setMenu} className="cursor-pointer hover:text-primary">
-                                            Purchase In
-                                        </li>
-                                        <li onClick={setMenu} className="cursor-pointer hover:text-primary">
-                                            Purchase Out
-                                        </li>
-                                    </ul>
-                                )}
+                        <li
+                            onClick={handleSignOut}
+                            className={` cursor-pointer w-[95%] mb-3 inline-block hover:bg-slate-200/40 px-2 py-2 rounded-r-3xl`}
+                        >
+                            <div className=' flex gap-1 text-lg'>
+                                Log Out <FaPowerOff className=' pt-1' size={25}/>
                             </div>
                         </li>
 

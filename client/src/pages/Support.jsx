@@ -5,38 +5,44 @@ import { useDispatch, useSelector } from 'react-redux';
 import { GoPlus } from "react-icons/go";
 import { Link } from 'react-router-dom';
 import { setItem } from '../redux/slices/commonSlice';
-import { findUserByIDRoute } from '../utils/ApiRoutes';
+import { findUserByIDRoute, getUserQueriesRoute } from '../utils/ApiRoutes';
 import { toast } from 'react-toastify';
 import axios from 'axios';
+import Loader from '../components/Loader';
+
 
 
 export default function Support() {
 
     const {userID} = useSelector((state) => state.user);
-    const [userInfo, setUserInfo] = useState({});
     const [loading, setLoading] = useState(false);
+    const [queries, setQueries] = useState([]);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
 
     useEffect(() => {
-        const fetchUser = async () => {
+        const fetchQueries = async () => {
             setLoading(true);
             try {
-                const response = await axios.get(`${findUserByIDRoute}?id=${userID}`);
-                setUserInfo(response.data);
+                const response = await axios.get(`${getUserQueriesRoute}?page=${currentPage}&id=${userID}`);
+                setQueries(response.data.data);
+                setTotalPages(response.data.totalPages || 1);
                 setLoading(false);
             } catch (error) {
-                console.log(error);
-                toast.error('Failed to load User');
-                setLoading(false);
+                setLoading(false); 
+                toast.error('Failed to load queries');
             }
         };
-        fetchUser();
-    }, [userID]);
+        fetchQueries();
+    }, [currentPage]);
 
     const dispatch = useDispatch();
 
     useEffect(() => {
         dispatch(setItem(9));
     },[])
+
+    console.log(queries);
 
 
   return (
@@ -47,7 +53,11 @@ export default function Support() {
             </div>
             <div className=' w-full md:w-[82%] bg-slate-200 overflow-auto '>
                 <Nav /> 
-                <div className=' w-full flex flex-col justify-center items-center gap-12 mt-12'>
+                {loading ? (
+                    <div className=' mt-12 flex justify-center'>
+                        <Loader />
+                    </div>
+                ):(<div className=' w-full flex flex-col justify-center items-center gap-12 mt-12'>
                     <div className=' w-[90%] flex justify-between items-center'>
                         <span className=' font-medium text-2xl text-gray-700'>Queries</span>
                         <Link to={'/newQuery'}>
@@ -57,6 +67,7 @@ export default function Support() {
                             </div>
                         </Link>
                     </div>
+
                     <div className="w-[90%] overflow-x-auto rounded shadow-md">
                         <table className="min-w-full bg-white">
                             <thead>
@@ -69,8 +80,8 @@ export default function Support() {
                                 </tr>
                             </thead>
                             <tbody>
-                                {userInfo?.queries?.length > 0 ? (
-                                    userInfo.queries.map((query, index) => (
+                                {queries?.length > 0 ? (
+                                    queries.map((query, index) => (
                                         <tr key={index} className="border-b">
                                             <td className=" w-[12%] py-2 px-4">{query.token}</td>
                                             <td className=" w-[32%] py-2 px-4">{query.query}</td>
@@ -81,7 +92,7 @@ export default function Support() {
                                     ))
                                 ) : (
                                     <tr>
-                                        <td className="py-2 px-4 text-center" colSpan="6">
+                                        <td className="py-2 px-4 text-center" colSpan="5">
                                             No data found
                                         </td>
                                     </tr>
@@ -89,7 +100,23 @@ export default function Support() {
                             </tbody>
                         </table>
                     </div>
-                </div>
+
+                    {/* Pagination Controls */}
+                    {totalPages >= 1 && (
+                    <div className='flex justify-center mt-4'>
+                        {Array.from({ length: totalPages }, (_, index) => (
+                            <button
+                                key={index}
+                                className={`px-4 py-2 mx-1 border rounded-lg ${index + 1 === currentPage ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'}`}
+                                onClick={() => handlePageChange(index + 1)}
+                                disabled={index + 1 === currentPage}
+                            >
+                                {index + 1}
+                            </button>
+                        ))}
+                    </div>
+                    )}
+                </div>)}
             </div>
         </div>
     </div>

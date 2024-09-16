@@ -20,7 +20,7 @@ export default function Navbar() {
       <header
             data-aos="fade"
             data-aos-duration="300"
-            className="relative z-[999] border-b-[1px]  border-primary/50 bg-gradient-to-l from-blue-950 via-blue-900 to-blue-950 text-white shadow-lg"
+            className="relative z-[999] border-b-[1px]  border-primary/50 text-white shadow-lg"
         >
           <nav className="container flex h-[70px] items-center justify-between py-2 gap-8 ">
               <div className="text-2xl text-white md:text-3xl ">
@@ -137,7 +137,7 @@ export default function Navbar() {
                       <div className=" flex flex-col justify-center items-center ">
                         <ul className="mt-3 flex flex-col text-white text-lg gap-2">
                           <li className="cursor-pointer hover:text-primary">
-                            Referral<br />List
+                            Referral<br />List 
                           </li>
                           <li className="cursor-pointer hover:text-primary">
                             Team<br />Members
@@ -254,7 +254,7 @@ export default function Navbar() {
                   </div> */}
                   
                 </ul>
-              </div>
+              </div> 
 
               <div className="flex items-center gap-4 xl:hidden ">
                 {showMenu ? (

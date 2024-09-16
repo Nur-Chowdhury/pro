@@ -7,6 +7,8 @@ import axios from 'axios';
 import { addDepositRoute, findUserByIDRoute } from '../utils/ApiRoutes';
 import { resetAmount } from '../redux/slices/commonSlice';
 import { toast } from 'react-toastify';
+import Loader from '../components/Loader';
+
 
 export default function Bkash() {
 
@@ -25,20 +27,21 @@ export default function Bkash() {
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
-        const fetchUser = async () => {
-            setLoading(true);
-            try {
-                const response = await axios.get(`${findUserByIDRoute}?id=${userID}`);
-                setUserInfo(response.data);
-                console.log(response);
-                setLoading(false);
-            } catch (error) {
-                console.log(error);
-                toast.error('Failed to load User');
-                setLoading(false);
-            }
-        };
-        fetchUser();
+        if(userID){
+            const fetchUser = async () => {
+                setLoading(true);
+                try {
+                    const response = await axios.get(`${findUserByIDRoute}?id=${userID}`);
+                    setUserInfo(response.data.user);
+                    setLoading(false);
+                } catch (error) {
+                    console.log(error);
+                    toast.error('Failed to load User');
+                    setLoading(false);
+                }
+            };
+            fetchUser();
+        }
     }, [userID]);
 
     const handlePayNow = async () => {
@@ -71,7 +74,13 @@ export default function Bkash() {
             </div>
             <div className=' w-full md:w-[82%] bg-slate-200 overflow-auto '>
                 <Nav />
-                <div className="flex flex-col justify-center items-center mt-6">
+
+                {loading ? (
+                    <div className=' mt-12 flex justify-center'>
+                        <Loader />
+                    </div>
+                ):
+                (<div className="flex flex-col justify-center items-center mt-6">
                     <h1 className="text-xl font-semibold text-gray-800 mb-8">Confirm Deposit</h1>
                     <div className="bg-white p-8 rounded shadow-md w-full max-w-md">
                         <div className="text-center text-gray-700 mb-6">
@@ -122,7 +131,7 @@ export default function Bkash() {
                             Pay Now
                         </button>
                     </div>
-                </div>
+                </div>)}
             </div>
         
         </div>

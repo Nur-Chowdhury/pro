@@ -2,6 +2,8 @@ import express from 'express';
 import User from '../models/User.js';
 import asyncHandler from 'express-async-handler';
 import Query from '../models/Query.js';
+import {verifyToken} from '../middleware/verifyToken.js';
+
 
 
 const queryRoutes = express.Router();
@@ -45,7 +47,7 @@ export const addQuery = asyncHandler(async (req, res) => {
 
         const queries = await Query.find({ userID:user._id });
 
-        rest.queries = queries;
+        rest.queries = queries; 
 
         res.status(200).json(rest);
   
@@ -54,8 +56,38 @@ export const addQuery = asyncHandler(async (req, res) => {
     }
 });
 
-queryRoutes.route('/addQuery').post(addQuery);
+export const getUserQueries = async (req, res) => {
+  const page = parseInt(req.query.page) || 1;
+  const id = req.query.id;
+  const limit = 25;
 
+  try {
+    // Get the total count of withdrawals for the given user
+    const total = await Query.countDocuments({ userID: id });
+
+    // Fetch withdrawals with pagination
+    const queries = await Query.find({ userID: id })
+      .sort({ createdAt: -1 })
+      .skip((page - 1) * limit)
+      .limit(limit);
+
+    res.status(200).json({
+      success: true,
+      data: queries,
+      totalPages: Math.ceil(total / limit),
+      currentPage: page,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch queries',
+      error: error.message,
+    });
+  }
+};
+
+queryRoutes.route('/addQuery').post(verifyToken, addQuery);
+queryRoutes.route('/getUserQueries').get(verifyToken, getUserQueries);
 
 export default queryRoutes;
 
