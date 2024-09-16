@@ -1,4 +1,4 @@
-export const host = import.meta.env.MODE === "development" ? "http://localhost:5174" : "/";
+export const host = import.meta.env.MODE === "development" ? "http://localhost:5174" : "";
 export const registerRoute = `${host}/api/users/register`;
 export const loginRoute = `${host}/api/users/login`;
 export const logoutRoute = `${host}/api/users/logout`;
