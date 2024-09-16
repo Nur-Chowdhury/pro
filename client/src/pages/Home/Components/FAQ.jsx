@@ -39,7 +39,7 @@ const FAQ = () => {
                     return (
                         <div className="singleQues">
                             <span>{ques}</span>
-                        <   p>{ans}</p>
+                            <p>{ans}</p>
                         </div>
                     )
                 })
