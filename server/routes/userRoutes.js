@@ -24,9 +24,9 @@ const registerUser = asyncHandler(async (req, res) => {
   
     const { ref, name, email, password, transactionPassword } = req.body;
     const refExists = await User.findOne({ referralId: ref });
-    // if (!refExists) {
-    //   res.status(400).send('User with such refferal code doesn\'t exists!');
-    // }
+    if (!refExists) {
+      res.status(400).send('User with such refferal code doesn\'t exists!');
+    }
 
     const userExists = await User.findOne({ email });
     if (userExists) {
