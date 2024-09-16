@@ -320,7 +320,7 @@ const findUserByID = async (req, res) => {
 
         rest.complete = completedWithdrawalsCount;
         rest.pending = pendingWithdrawalsCount;
-        rest.reject = rejectedWithdrawalsCount;
+        rest.reject = rejectedWithdrawalsCount; 
         res.status(200).json({
           user: rest,
           totalPages: Math.ceil(sortedReferralIncomeList.length / limit)
