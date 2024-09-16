@@ -302,8 +302,6 @@ const findUserByID = async (req, res) => {
             user.dayReset = 1;
             task.users.push({ id });
             await task.save();
-          } else {
-            res.status(404).json('No Task Available!');
           }
         }
 
