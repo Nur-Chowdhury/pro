@@ -5,6 +5,8 @@ import { setItem, toggleMenu } from '../redux/slices/commonSlice';
 import { FaCaretDown, FaCaretUp } from "react-icons/fa";
 import { Link, useNavigate } from 'react-router-dom';
 import { signoutSuccess } from '../redux/slices/user';
+import { toast } from 'react-toastify';
+import { logoutRoute } from '../utils/ApiRoutes';
 
 
 export default function ResponsiveMenu() {
