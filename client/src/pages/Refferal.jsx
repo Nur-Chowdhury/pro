@@ -39,7 +39,7 @@ export default function Refferal() {
     const dispatch = useDispatch();
 
     const [copied, setCopied] = useState(false);
-    const link = `/register/?ref=${userInfo ? userInfo.referralId:""}`
+    const link = `https://pro-ih0w.onrender.com/register/?ref=${userInfo ? userInfo.referralId:""}`
 
     const copyToClipboard = () => {
         navigator.clipboard.writeText(link);
