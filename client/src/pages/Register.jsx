@@ -5,7 +5,7 @@ import { CiUser } from "react-icons/ci";
 import { IoEyeOffOutline, IoEyeOutline } from "react-icons/io5"
 import { register } from '../redux/actions/userActions';
 import { useDispatch, useSelector } from 'react-redux';
-import { useNavigate, Link as ReactLink, Link } from 'react-router-dom';
+import { useNavigate, Link as ReactLink, Link, useLocation } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
 export default function Register() {
@@ -16,6 +16,10 @@ export default function Register() {
     const [showtPassword, setShowtPassword] = useState(false);
     const user = useSelector((state) => state.user);
     const { loading, error } = user;
+
+    const location = useLocation();
+    const queryParams = new URLSearchParams(location.search);
+    const refID = queryParams.get('ref') || '';
 
     
 
@@ -57,12 +61,14 @@ export default function Register() {
                                         <h1 className='text-lg w-full'>Refferal ID:</h1>
                                         <div className='py-1 gap-0 w-full'>
                                             <div className=' flex'>
-                                                <CiUser size={40} className='px-1 py-1 border-2 border-gray-400 border-r-0' />
+                                                <CiUser size={45} className='px-1 py-1 border-2 border-gray-400 border-r-0' />
                                                 <input
                                                     className={`w-full border-2 ${bd ? 'border-blue-500' : 'border-gray-400'}`}
                                                     type="text"
                                                     placeholder=' Refferal ID'
-                                                    {...formik.getFieldProps('refID')} />
+                                                    {...formik.getFieldProps('refID')}
+                                                    value={formik.values.refID || refID}
+                                                />
                                             </div>
                                             {formik.touched.refID && formik.errors.refID ? (
                                                 <div className='text-red-500'>{formik.errors.refID}</div>
@@ -75,7 +81,7 @@ export default function Register() {
                                         <h1 className='text-lg w-full'>Full Name:</h1>
                                         <div className='py-1 gap-0 w-full'>
                                             <div className=' flex'>
-                                                <CiUser size={40} className='px-1 py-1 border-2 border-gray-400 border-r-0' />
+                                                <CiUser size={45} className='px-1 py-1 border-2 border-gray-400 border-r-0' />
                                                 <input
                                                     className={`w-full border-2 ${bd ? 'border-blue-500' : 'border-gray-400'}`}
                                                     type="text"
@@ -93,7 +99,7 @@ export default function Register() {
                                         <h1 className='text-lg w-full'>Email:</h1>
                                         <div className='py-1 gap-0 w-full'>
                                             <div className=' flex'>
-                                                <CiUser size={40} className='px-1 py-1 border-2 border-gray-400 border-r-0' />
+                                                <CiUser size={45} className='px-1 py-1 border-2 border-gray-400 border-r-0' />
                                                 <input
                                                     className={`w-full border-2 ${bd ? 'border-blue-500' : 'border-gray-400'}`}
                                                     type="email"

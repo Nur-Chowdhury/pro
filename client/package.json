@@ -16,6 +16,7 @@
     "flowbite": "^2.4.1",
     "flowbite-react": "^0.10.1",
     "formik": "^2.4.6",
+    "pr": "file:..",
     "react": "^18.2.0",
     "react-countup": "^6.5.3",
     "react-dom": "^18.2.0",

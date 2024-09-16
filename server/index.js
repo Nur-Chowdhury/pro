@@ -3,6 +3,7 @@ import express from 'express'
 import cors from 'cors'
 import connectTODB from './db.js'
 import cookieParser from 'cookie-parser';
+import path from "path";
 
 //routes
 import userRoutes from './routes/userRoutes.js';
@@ -15,6 +16,8 @@ dotenv.config();
 connectTODB();
 
 const app = express();
+const __dirname = path.resolve();
+const port = process.env.PORT || 5174;
  
 app.use(express.json());
 app.use(cookieParser());
@@ -28,7 +31,14 @@ app.use('/api/query', queryRoutes);
 app.use('/api/deposit', depositRoutes);
 app.use('/api/withdraw', withdrawRoutes);
 
-const port = process.env.PORT || 5174;
+if (process.env.NODE_ENV === "production") {
+	app.use(express.static(path.join(__dirname, "/client/dist")));
+
+	app.get("*", (req, res) => {
+		res.sendFile(path.resolve(__dirname, "client", "dist", "index.html"));
+	});
+}
+
 
 app.listen(port, () => {
     console.log(`Server started on port ${port}`);

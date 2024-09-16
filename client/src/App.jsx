@@ -1,5 +1,5 @@
 import React from 'react'
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Register from './pages/Register';
 import Login from './pages/Login';
 import Admin from './pages/Admin';
@@ -85,6 +85,8 @@ export default function App() {
           <Route path='/admin/deposits' element={<DepositList />} />
           <Route path='/admin/withdraws' element={<WithdrawList />} />
         </Route>
+
+        <Route path='*' element={<Navigate to='/' replace />} />
       </Routes>
     </Router>
   )
