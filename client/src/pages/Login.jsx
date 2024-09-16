@@ -53,7 +53,7 @@ export default function Login() {
                                         <h1 className='text-lg w-full'>Email:</h1>
                                         <div className='py-1 gap-0 w-full'>
                                             <div className=' flex'>
-                                                <CiUser size={40} className='px-1 py-1 border-2 border-gray-400 border-r-0' />
+                                                <CiUser size={45} className='px-1 py-1 border-2 border-gray-400 border-r-0' />
                                                 <input
                                                     className={`w-full border-2 ${bd ? 'border-blue-500' : 'border-gray-400'}`}
                                                     type="email"
