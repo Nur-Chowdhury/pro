@@ -13,23 +13,26 @@ export default function UserList() {
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(false);
 
-    useEffect(() => {
-        if(userID){
-            const fetchUser = async () => {
-                setLoading(true);
-                try {
-                    const response = await axios.get(`${findUserByIDRoute}?id=${userID}`);
-                    setUserInfo(response.data.user);
-                    setLoading(false);
-                } catch (error) {
-                    console.log(error);
-                    toast.error('Failed to load User');
-                    setLoading(false);
-                }
-            };
-            fetchUser();
+  useEffect(() => {
+    const fetchUsers = async () => {
+      setLoading(true);
+      try {
+        const { data } = await axios.get(`${getAllUsersRoute}?page=${currentPage}`);
+        if (data.success) {
+          setUsers(data.data);
+          setTotalPages(data.totalPages);
+        } else {
+          setError(data.message);
         }
-    }, [userID, currentPage]);
+      } catch (err) {
+        setError('Failed to fetch users');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUsers();
+  }, [currentPage]);
 
   const handlePageChange = (newPage) => {
     setCurrentPage(newPage);
@@ -134,7 +137,7 @@ export default function UserList() {
                 ))
               ) : (
                 <tr>
-                  <td className="py-2 px-4 text-center" colSpan="4">
+                  <td className="py-2 px-4 text-center" colSpan="10">
                     No data found
                   </td>
                 </tr>

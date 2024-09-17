@@ -120,7 +120,7 @@ export default function WithdrawList() {
                   ))
                 ) : (
                   <tr className=' w-full'>
-                    <td className=" w-full py-2 px-4 text-center" colSpan="4">
+                    <td className=" w-full py-2 px-4 text-center" colSpan="8">
                       No data found
                     </td>
                   </tr>

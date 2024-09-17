@@ -120,7 +120,7 @@ export default function DepositList() {
                   ))
                 ) : (
                   <tr>
-                    <td className="py-2 px-4 text-center" colSpan="4">
+                    <td className="py-2 px-4 text-center" colSpan="9">
                       No data found
                     </td>
                   </tr>

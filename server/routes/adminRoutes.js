@@ -100,7 +100,7 @@ export const addReply = async (req, res) => {
 
 export const getAllUsers = async (req, res) => {
   const page = parseInt(req.query.page) || 1;
-  const limit = 25;
+  const limit = 25; 
     
   try {
     const users = await User.find()
