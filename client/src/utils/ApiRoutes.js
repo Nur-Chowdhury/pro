@@ -28,8 +28,3 @@ export const banUserRoute = `${host}/api/admins/banUser`;
 export const makeAdminRoute = `${host}/api/admins/makeAdmin`;
 export const findUserByIDRoute = `${host}/api/users/findUserByID`;
 export const emailVerifyRoute = `${host}/api/users/verifyUser`;
-
-// export const avatarRoute = `${host}/api/auth/avatar`;
-// export const allUserRoute = `${host}/api/auth/allusers`;
-// export const sendMessageRoute = `${host}/api/messages/addmsg`;
-// export const getAllMessagesRoute = `${host}/api/messages/getmsg`;

@@ -53,10 +53,10 @@ export default function Nav() {
                         <div className=" md:hidden text-2xl text-white md:text-3xl ">
                             <a href="/dashboard" className="">LOGO</a>
                         </div>
-                        <div>
+                        {/* <div>
                             hi
-                            {/* gotta do it later */}
-                        </div>
+                            gotta do it later
+                        </div> */}
                     </div>
                 </nav>
             </header>

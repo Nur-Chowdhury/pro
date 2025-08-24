@@ -12,13 +12,14 @@ import {toast} from 'react-toastify';
 
 axios.defaults.withCredentials = true;
 
-export const register = (refID, name, email, password, transactionPassword) => async (dispatch) => {
+export const register = (refID, name, email, password) => async (dispatch) => {
     dispatch(setLoading(true));
     try {
-      const { data } = await axios.post(registerRoute, {refID, name, email, password, transactionPassword });
+      const { data } = await axios.post(registerRoute, {refID, name, email, password });
       console.log(data);
       toast.success(data);
       dispatch(setLoading(false));
+      return true;
     } catch (error) {
         console.log(error);
         toast.error(
@@ -29,6 +30,7 @@ export const register = (refID, name, email, password, transactionPassword) => a
             : 'An unexpected error has occured. Please try again later.'
         )
       dispatch(setLoading(false));
+      return false;
     }
 };
 

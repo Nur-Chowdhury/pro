@@ -32,7 +32,7 @@ export default function Register() {
                 </div>
                 <div className=' mb-8'>
                     <Formik
-                        initialValues={{ refID: '', email: '', password: '', name: '', transactionPassword: ''}}
+                        initialValues={{ refID: 'ouKLRyPI', email: '', password: '', name: ''}}
                         validationSchema={Yup.object({
                             refID: Yup.string(),
                             name: Yup.string().required('A name is required.'),
@@ -44,13 +44,17 @@ export default function Register() {
                                 .min(8, 'Password is too short - must contain at least 8 characters.')
                                 .required('Password is required.')
                                 .oneOf([Yup.ref('password'), null], 'Passwords must match.'),
-                            transactionPassword: Yup.string()
-                                .min(8, 'Password is too short - must contain at least 8 characters.')
-                                .required('Password is required.'),
                         })}
-                        onSubmit={(values) => {
-                            dispatch(register(values.refID, values.name, values.email, values.password, values.transactionPassword));
-                            navigate("/login");
+                        onSubmit={async (values) => {
+                            const success = await dispatch(register(
+                                values.refID,
+                                values.name,
+                                values.email,
+                                values.password,
+                            ));       
+                            if (success) {
+                                navigate("/login");
+                            }
                         }}
                     >
                         {formik => {
@@ -158,31 +162,6 @@ export default function Register() {
                                             </div>
                                             {formik.touched.confirmPassword && formik.errors.confirmPassword ? (
                                                 <div className='text-red-500'>{formik.errors.confirmPassword}</div>
-                                            ) : null}
-                                        </div>
-                                    </div>
-
-                                    {/* transection password */}
-                                    <div>
-                                        <h1 className='text-lg w-full'>Transection Password:</h1>
-                                        <div className='py-1 gap-0 w-full'>
-                                            <div className=' flex'>
-                                                <div onClick={() => setShowtPassword(!showtPassword)} className=' cursor-pointer px-1 py-1 border-2 border-gray-400 border-r-0'>
-                                                    {showtPassword ? 
-                                                        <IoEyeOffOutline size={30} className='' /> 
-                                                        :
-                                                        <IoEyeOutline size={30} className='' />
-                                                    }
-                                                </div>
-                                                <input
-                                                    className={`w-full border-2 ${bd ? 'border-blue-500' : 'border-gray-400'}`}
-                                                    type={showtPassword ? 'text' : 'password'}
-                                                    placeholder=' Password'
-                                                    {...formik.getFieldProps('transactionPassword')}
-                                                />
-                                            </div>
-                                            {formik.touched.transactionPassword && formik.errors.transactionPassword ? (
-                                                <div className='text-red-500'>{formik.errors.transactionPassword}</div>
                                             ) : null}
                                         </div>
                                     </div>

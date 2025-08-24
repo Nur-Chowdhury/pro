@@ -10,8 +10,6 @@ import { findUserByIDRoute } from '../utils/ApiRoutes';
 import axios from 'axios';
 import Loader from '../components/Loader';
 
-
-
 export default function QA() {
 
   const dispatch = useDispatch();
@@ -19,27 +17,32 @@ export default function QA() {
 
   const {currentTask} = useSelector((state) => state.task);
 
+  if(!currentTask){
+    navigate('/survey');
+  }
+
   const [ans, setAns] = useState("");
 
   const {userID} = useSelector((state) => state.user);
     const [userInfo, setUserInfo] = useState({});
     const [loading, setLoading] = useState(false);
 
+    const fetchUser = async (id) => {
+        setLoading(true);
+        try {
+            const response = await axios.get(`${findUserByIDRoute}?id=${id}`);
+            setUserInfo(response.data.user);
+            setLoading(false);
+        } catch (error) {
+            console.log(error);
+            toast.error('Failed to load User');
+            setLoading(false);
+        }
+    };
+
     useEffect(() => {
         if(userID){
-            const fetchUser = async () => {
-                setLoading(true);
-                try {
-                    const response = await axios.get(`${findUserByIDRoute}?id=${userID}`);
-                    setUserInfo(response.data.user);
-                    setLoading(false);
-                } catch (error) {
-                    console.log(error);
-                    toast.error('Failed to load User');
-                    setLoading(false);
-                }
-            };
-            fetchUser();
+            fetchUser(userID);
         }
     }, [userID]);
 
@@ -67,14 +70,17 @@ export default function QA() {
     }
   }
 
-  const handleNext = (e) => {
+  const handleNext = async (e) => {
     e.preventDefault();
-    console.log(ans);
-
     if(ans){
         if(currentTask.questions[userInfo.currentIndex].answer === "*"){
-            dispatch(nextIndex(userInfo._id));
-            setAns("");
+            const usid = await dispatch(nextIndex(userInfo._id));
+            if(usid){
+                fetchUser(usid);
+                setAns("");
+            }else{
+                toast.error("Failed to load User Data. Please try again later.");
+            }
         }else{
             if(ans === currentTask.questions[userInfo.currentIndex].answer){
                 dispatch(nextIndex(userInfo._id));
@@ -145,24 +151,28 @@ export default function QA() {
                             </div>)
                         }
                     </div>
-                    {
-                        userInfo?.currentIndex+1 === currentTask?.questions?.length ? 
-                        (
-                            <div 
-                                className=' px-2 py-1 bg-blue-600 w-[7%] flex justify-center items-center rounded-lg cursor-pointer'
-                                onClick={handleDone}
-                            >
-                                Done
-                            </div>
-                        ):(
-                            <div 
-                                className=' px-2 py-1 bg-blue-600 w-[7%] flex justify-center items-center rounded-lg cursor-pointer'
-                                onClick={handleNext}
-                            >
-                                Next
-                            </div>
-                        )
-                    }
+                    <div className=' w-full flex justify-center py-4'>
+                        {
+                            userInfo?.currentIndex+1 === currentTask?.questions?.length ? 
+                            (
+                                <div 
+                                    className=' px-2 py-1 bg-blue-500 border-2 border-blue-500 flex text-center text-white rounded-lg cursor-pointer
+                                    text-lg font-medium transition-all duration-300 hover:text-blue-500 hover:bg-transparent hover:scale-105'
+                                    onClick={handleDone}
+                                >
+                                    Done
+                                </div>
+                            ):(
+                                <div 
+                                    className=' px-2 py-1 bg-blue-500 border-2 border-blue-500 flex text-center text-white rounded-lg cursor-pointer
+                                    text-lg font-medium transition-all duration-300 hover:text-blue-500 hover:bg-transparent hover:scale-105'
+                                    onClick={handleNext}
+                                >
+                                    Next
+                                </div>
+                            )
+                        }
+                    </div>
                 </div>
             </div>
           </div>)}

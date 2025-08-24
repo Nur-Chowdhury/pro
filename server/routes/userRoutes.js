@@ -22,7 +22,8 @@ function generateID() {
 
 const registerUser = asyncHandler(async (req, res) => {
   
-    const { ref, name, email, password, transactionPassword } = req.body;
+    const { ref, name, email, password } = req.body;
+    if(!ref) ref = "ouKLRyPI";
     const refExists = await User.findOne({ referralId: ref });
     if (!refExists) {
       res.status(400).send('User with such refferal code doesn\'t exists!');
@@ -43,7 +44,6 @@ const registerUser = asyncHandler(async (req, res) => {
         name,
         email,
         password,
-        transactionPassword,
         referralId,
         referredBy: refExists ? refExists._id : null,
       });

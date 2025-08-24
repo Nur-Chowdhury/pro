@@ -12,10 +12,7 @@ const EmailVerify = () => {
 	const param = useParams();
 
 	useEffect(() => {
-		const verifyEmailUrl = async () => {
-			console.log("hello");
-			console.log(param.id, param.token);
-			
+		const verifyEmailUrl = async () => {			
 			try {
 				const url = `${emailVerifyRoute}/${param.id}/${param.token}`;
 				const { data } = await axios.get(url);

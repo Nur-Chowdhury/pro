@@ -74,10 +74,11 @@ export const nextIndex = (id) => async (dispatch) => {
       },
     };
 
-    const { data } = await axios.post(nextIndexRoute, {id}, config);
+    const { data } = await axios.post(nextIndexRoute, {id}, config);    
     dispatch(userLogin(data));
     dispatch(setLoading(false));
     localStorage.setItem('userInfo', JSON.stringify(data));
+    return data;
   } catch (error) {
       console.log(error);
       dispatch(

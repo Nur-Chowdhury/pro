@@ -19,13 +19,13 @@ export default function Post() {
   const {userID} = useSelector((state) => state.user);
   const [userInfo, setUserInfo] = useState({});
   const [loading, setLoading] = useState(false);
-
+  
   useEffect(() => {
       const fetchUser = async () => {
           setLoading(true);
           try {
-              const response = await axios.get(`${findUserByIDRoute}?id=${userID}`);
-              setUserInfo(response.data);
+              const response = await axios.get(`${findUserByIDRoute}?id=${userID}`);              
+              setUserInfo(response.data.user);
               setLoading(false);
           } catch (error) {
               console.log(error);
@@ -39,8 +39,10 @@ export default function Post() {
   console.log(currentTask, userInfo.currentSurvey);
   
 
-  useEffect(() => {
+  useEffect(() => { 
     if (currentTask === null && userInfo.currentSurvey) {
+      console.log("hi");
+      
       dispatch(getTask(userInfo.currentSurvey));
     }
   }, []);

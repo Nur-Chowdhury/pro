@@ -51,7 +51,7 @@ function Navbar() {
           </ul>
           <div className="buttons flexC">
             <Link to={'/login'}><button className='btn flexC btnOne' >Login</button></Link>
-            <Link to={'/register'}><button className='btn flexC btnTwo' >SignUp</button></Link>
+            <Link to={'/register'}><button className='btn flexC bg-blue-600 hover:bg-blue-900 font-semibold transition-all duration-300' >SignUp</button></Link>
           </div>
         </div>
 

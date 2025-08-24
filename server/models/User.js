@@ -50,10 +50,6 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    transactionPassword: {
-        type: String,
-        required: true,
-    },
     verified:{
       type: Boolean,
       default: false,
@@ -87,6 +83,7 @@ const userSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId, 
       // required: true, 
       ref: 'User',
+      default: null,
     },
     refers:[referSchema],
     refferalIncome:{
