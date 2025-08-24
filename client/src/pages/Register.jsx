@@ -146,8 +146,8 @@ export default function Register() {
                                         <h1 className='text-lg w-full'>Confirm Password:</h1>
                                         <div className='py-1 gap-0 w-full'>
                                             <div className=' flex'>
-                                                <div onClick={() => setShowPassword(!showPassword)} className=' cursor-pointer px-1 py-1 border-2 border-gray-400 border-r-0'>
-                                                    {showPassword ? 
+                                                <div onClick={() => setShowtPassword(!showtPassword)} className=' cursor-pointer px-1 py-1 border-2 border-gray-400 border-r-0'>
+                                                    {showtPassword ? 
                                                         <IoEyeOffOutline size={30} className='' /> 
                                                         :
                                                         <IoEyeOutline size={30} className='' />
@@ -155,7 +155,7 @@ export default function Register() {
                                                 </div>
                                                 <input
                                                     className={`w-full border-2 ${bd ? 'border-blue-500' : 'border-gray-400'}`}
-                                                    type={showPassword ? 'text' : 'password'}
+                                                    type={showtPassword ? 'text' : 'password'}
                                                     placeholder=' Password'
                                                     {...formik.getFieldProps('confirmPassword')}
                                                 />
