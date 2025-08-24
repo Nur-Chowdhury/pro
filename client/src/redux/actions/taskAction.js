@@ -1,7 +1,7 @@
 import axios from "axios";
 import {setLoading, setError, setTask, removeTask} from '../slices/taskSlice'
 import { fetchTaskRoute, getTaskByIdRoute, nextIndexRoute, surveyDoneRoute } from "../../utils/ApiRoutes";
-import { userLogin } from "../slices/user";
+import { userLogin } from "../slices/user"; 
 
 axios.defaults.withCredentials = true;
 
@@ -49,6 +49,7 @@ export const getTask = (id) => async (dispatch) => {
       dispatch(setTask(data));
       localStorage.setItem('currentTask', JSON.stringify(data));
       dispatch(setLoading(false));
+      return true;
     } catch (error) {
         console.log(error);
         dispatch(
@@ -61,6 +62,7 @@ export const getTask = (id) => async (dispatch) => {
             )
         );
         dispatch(setLoading(false));
+        return true;
     }
 };
 

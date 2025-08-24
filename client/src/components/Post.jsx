@@ -36,16 +36,18 @@ export default function Post() {
       fetchUser();
   }, [userID]);
 
-  console.log(currentTask, userInfo.currentSurvey);
-  
-
-  useEffect(() => { 
-    if (currentTask === null && userInfo.currentSurvey) {
-      console.log("hi");
-      
-      dispatch(getTask(userInfo.currentSurvey));
-    }
-  }, []);
+  useEffect(() => {
+    const fetchTask = async () => {
+      if (currentTask === null && userInfo.currentSurvey) {
+        setLoading(true);
+        const data = await dispatch(getTask(userInfo.currentSurvey));
+        if (data) {
+          setLoading(false);
+        }
+      }
+    };
+    fetchTask();
+  }, [currentTask, userInfo.currentSurvey, dispatch]);
 
   return (
     <div className=' w-full flex flex-col justify-center items-center gap-12'>
@@ -69,30 +71,34 @@ export default function Post() {
               <FcSurvey size={30} />
               Survey List
             </div>
-            <div className=' bg-white flex justify-center items-center py-8 rounded-b-xl'>
-              { userInfo?.currentSurvey ? (
-                  <div className='h-[420px] w-[60%] sm:w-[50%] md:w-[40%] lg:w-[25%] shadow-2xl rounded-xl py-1 px-4'>
-                    <div className=' flex justify-center items-center h-[55%] pt-4'>
-                      <img
-                        src={survey}
-                        className=' h-full w-full'
-                      />
-                    </div>
-                    <div className=' flex flex-col gap-1 my-2'>
-                      <p className=' text-lg font-medium'>Survey#{userInfo.surveyCount+1}</p>
-                      <p className=' text-md font-medium opacity-60'>{currentTask?.name}</p>
-                      <p className=' text-md font-medium text-[#28C76F]'>Reward: {currentTask?.reward}</p>
-                      <p className=' text-md font-medium text-[#28C76F]'>Task Done: {userInfo?.currentIndex}/{currentTask?.questions?.length}</p>
-                    </div>
-                    <Link to={'/questions'}><div className='flex justify-center items-center px-4 py-2 bg-blue-600 text-white text-lg font-medium rounded-lg hover:text-gray-700
-                    hover:bg-transparent hover:border-2 hover:border-blue-600 cursor-pointer transition duration-500'>
-                        Start survey
-                    </div></Link>
+            { loading ? (
+              <div className=' bg-white text-center py-8 rounded-b-xl'>Loading...</div>
+            ):(
+              <div className=' bg-white flex justify-center items-center py-8 rounded-b-xl'>
+                {userInfo?.currentSurvey ? (
+                <div className='h-[420px] w-[60%] sm:w-[50%] md:w-[40%] lg:w-[25%] shadow-2xl rounded-xl py-1 px-4'>
+                  <div className=' flex justify-center items-center h-[55%] pt-4'>
+                    <img
+                      src={survey}
+                      className=' h-full w-full'
+                    />
                   </div>
-              ):(
-                <div>Come Back Tommorrow to do more survey!</div>
-              )}
-            </div>
+                  <div className=' flex flex-col gap-1 my-2'>
+                    <p className=' text-lg font-medium'>Survey#{userInfo.surveyCount+1}</p>
+                    <p className=' text-md font-medium opacity-60'>{currentTask?.name}</p>
+                    <p className=' text-md font-medium text-[#28C76F]'>Reward: {currentTask?.reward}</p>
+                    <p className=' text-md font-medium text-[#28C76F]'>Task Done: {userInfo?.currentIndex}/{currentTask?.questions?.length}</p>
+                  </div>
+                  <Link to={'/questions'}><div className='flex justify-center items-center px-4 py-2 bg-blue-600 text-white text-lg font-medium rounded-lg hover:text-gray-700
+                  hover:bg-transparent hover:border-2 hover:border-blue-600 cursor-pointer transition duration-500'>
+                      Start survey
+                  </div></Link>
+                </div>
+                ):(
+              <div>Come Back Tommorrow to do more survey!</div>
+                )}
+              </div>
+            )}
             
         </div>
 
