@@ -126,11 +126,11 @@ export default function Plans() {
                                 </div>
                             </div>
 
-                            <button className=' flex items-center justify-center my-6 w-[75%] h-[40px] rounded-lg border-2 border-blue-500 font-medium 
-                            text-lg hover:bg-blue-500 hover:text-white' 
+                            <button className={` flex items-center justify-center my-6 w-[75%] h-[40px] rounded-lg border-2 border-blue-500 font-medium 
+                            text-lg hover:bg-blue-500 hover:text-white ${userInfo.subscribed!=="none" ? " cursor-not-allowed" : " cursor-pointer"}`}
                             disabled={userInfo.subscribed!=="none"}
                             onClick={()=> handleClick(50)}>
-                                {userInfo.subscribed==="none" ? "Subscribe" : "Subscribed" }
+                                {userInfo.subscribed!=="none" ? "Subscribed" : "Subscribe" }
                             </button>
                         </div>
 
@@ -194,12 +194,11 @@ export default function Plans() {
                                 </div>
                             </div>
 
-                            <button className=' flex items-center justify-center my-6 w-[75%] h-[40px] rounded-lg border-2 border-blue-500 font-medium 
-                                text-lg hover:bg-blue-500 hover:text-white' 
-                                disabled={userInfo.subscribed==="gold"}
-                                onClick={()=> handleClick(75)}
-                            >
-                                {userInfo.subscribed==="gold" ? "Subscribed" : "Subscribe" }
+                            <button className={` flex items-center justify-center my-6 w-[75%] h-[40px] rounded-lg border-2 border-blue-500 font-medium 
+                            text-lg hover:bg-blue-500 hover:text-white ${userInfo.subscribed!=="none" ? " cursor-not-allowed" : " cursor-pointer"}`}
+                            disabled={userInfo.subscribed!=="none"}
+                            onClick={()=> handleClick(50)}>
+                                {userInfo.subscribed!=="none" ? "Subscribed" : "Subscribe" }
                             </button>
                         </div>
                     </div>
